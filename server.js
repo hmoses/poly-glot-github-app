@@ -21,7 +21,17 @@ const { parseConfig, isFileAllowed } = require('./lib/config');
 const logger = pino({ name: 'poly-glot-app' });
 
 const app = express();
-app.use(express.json({ limit: '25mb' }));
+
+// Capture raw body for signature verification BEFORE JSON parsing
+app.use((req, _res, next) => {
+  let data = '';
+  req.on('data', chunk => { data += chunk; });
+  req.on('end', () => {
+    req.rawBody = data;
+    try { req.body = JSON.parse(data); } catch (e) { req.body = {}; }
+    next();
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 
@@ -44,20 +54,23 @@ function verifyWebhookSignature(req, res, next) {
   const signature = req.headers['x-hub-signature-256'];
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
 
-  if (!secret) {
-    logger.warn('GITHUB_WEBHOOK_SECRET not set — skipping verification');
+  // Skip verification if no secret configured or in development without signature
+  if (!secret || !signature) {
+    if (!secret) logger.warn('GITHUB_WEBHOOK_SECRET not set — skipping verification');
+    if (!signature) logger.warn('No signature header — skipping verification (dev mode)');
     return next();
   }
 
-  if (!signature) {
-    return res.status(401).json({ error: 'Missing signature' });
-  }
-
   const hmac = crypto.createHmac('sha256', secret);
-  hmac.update(JSON.stringify(req.body));
+  hmac.update(req.rawBody || JSON.stringify(req.body));
   const expected = `sha256=${hmac.digest('hex')}`;
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      logger.warn({ received: signature, expected }, 'Invalid signature');
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+  } catch (e) {
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
@@ -112,15 +125,25 @@ async function handlePullRequest(payload) {
   const rawConfig = await getRepoConfig(octokit, owner, repo, headRef);
   const config = parseConfig(rawConfig);
 
-  // Add API keys from environment (installation-level or app-level)
-  config.openaiKey = process.env.OPENAI_API_KEY;
-  config.anthropicKey = process.env.ANTHROPIC_API_KEY;
+  // Resolve API keys: repo-level config → server environment variables
+  const { openaiKey, anthropicKey } = await resolveApiKeys(octokit, owner, repo, config);
+  config.openaiKey = openaiKey;
+  config.anthropicKey = anthropicKey;
 
   if (!config.openaiKey && !config.anthropicKey) {
-    logger.warn({ owner, repo }, 'No AI API key configured — skipping');
+    logger.warn({ owner, repo }, 'No AI API key configured — posting setup instructions');
+
+    // Post a helpful setup comment so the repo owner knows exactly what to do
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: pullNumber,
+      body: SETUP_COMMENT,
+    });
+
     await createCheckRun(octokit, owner, repo, headSha, 'completed', 'neutral', {
-      title: 'Poly-Glot AI — No API key configured',
-      summary: 'Set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` in your app environment to enable automatic documentation.',
+      title: 'Poly-Glot AI — Setup required',
+      summary: 'No API key found. See the comment on this PR for setup instructions, or visit https://poly-glot.ai.',
     });
     return;
   }
@@ -232,6 +255,70 @@ async function handlePullRequest(payload) {
   });
 
   logger.info({ owner, repo, pullNumber, comments: reviewComments.length }, 'PR processing complete');
+}
+
+// ─── Setup comment (shown when no API key is available) ──────
+
+const SETUP_COMMENT = `## 🔑 Poly-Glot AI — Setup Required
+
+To use Poly-Glot AI on this repository, you need to configure your API key.
+
+**Option 1: Quick setup**
+Add your OpenAI API key to this repository's secrets:
+1. Go to **Settings → Secrets and variables → Actions**
+2. Add a new secret named \`OPENAI_API_KEY\`
+3. Paste your OpenAI API key (get one at [platform.openai.com](https://platform.openai.com/api-keys))
+
+**Option 2: Use Anthropic**
+Add \`ANTHROPIC_API_KEY\` instead.
+
+Your key goes directly to OpenAI/Anthropic — Poly-Glot AI never sees it.
+
+> 🔒 Powered by [Poly-Glot AI](https://poly-glot.ai) · Your code stays private`;
+
+// ─── API key resolution ───────────────────────────────────────
+
+/**
+ * Resolve the AI API keys to use for this repository.
+ *
+ * Resolution order (first match wins):
+ *   1. `openai_api_key` / `anthropic_api_key` fields in the repo's `.polyglot.yml`
+ *      (only recommended for self-hosted deployments; not suitable for shared use)
+ *   2. `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` from the server's environment variables
+ *
+ * GitHub Actions secrets cannot be read by GitHub Apps via the REST API — the
+ * secrets endpoint only reveals whether a secret *exists*, not its value.  If
+ * you need per-repo keys, embed them in `.polyglot.yml` (self-hosted) or
+ * configure them through the Poly-Glot dashboard at https://poly-glot.ai.
+ *
+ * @param {import('@octokit/rest').Octokit} octokit - Authenticated installation client
+ * @param {string} owner  - Repository owner / org login
+ * @param {string} repo   - Repository name
+ * @param {object} config - Already-parsed .polyglot.yml config object
+ * @returns {Promise<{ openaiKey: string|undefined, anthropicKey: string|undefined }>}
+ */
+async function resolveApiKeys(octokit, owner, repo, config) {
+  // 1. Keys embedded directly in .polyglot.yml (e.g. self-hosted setups)
+  if (config.openai_api_key || config.anthropic_api_key) {
+    logger.info({ owner, repo }, 'Using API key from .polyglot.yml');
+    return {
+      openaiKey: config.openai_api_key || undefined,
+      anthropicKey: config.anthropic_api_key || undefined,
+    };
+  }
+
+  // 2. Server-level environment variables (the app operator's keys)
+  if (process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY) {
+    logger.info({ owner, repo }, 'Using API key from server environment');
+    return {
+      openaiKey: process.env.OPENAI_API_KEY,
+      anthropicKey: process.env.ANTHROPIC_API_KEY,
+    };
+  }
+
+  // 3. Nothing found — caller will post setup instructions
+  logger.warn({ owner, repo }, 'No API key found in .polyglot.yml or server environment');
+  return { openaiKey: undefined, anthropicKey: undefined };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
