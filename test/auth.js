@@ -1,59 +1,31 @@
+// Undocumented auth module — no JSDoc
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 
-const SALT_ROUNDS = 12;
-const TOKEN_EXPIRY = '7d';
-const MAX_LOGIN_ATTEMPTS = 5;
-
-function hashPassword(password) {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.createHmac('sha256', salt).update(password).digest('hex');
-  return `${salt}:${hash}`;
+function hashPassword(password, salt) {
+  return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
 }
 
-function verifyPassword(password, stored) {
-  const [salt, hash] = stored.split(':');
-  const computed = crypto.createHmac('sha256', salt).update(password).digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(hash));
+function verifyPassword(password, hash, salt) {
+  const incoming = hashPassword(password, salt);
+  return crypto.timingSafeEqual(Buffer.from(incoming), Buffer.from(hash));
 }
 
-function generateToken(userId, role) {
-  return jwt.sign(
-    { sub: userId, role, iat: Math.floor(Date.now() / 1000) },
-    process.env.JWT_SECRET,
-    { expiresIn: TOKEN_EXPIRY, algorithm: 'RS256' }
-  );
+function generateToken(userId, secret) {
+  const payload = { userId, iat: Date.now(), exp: Date.now() + 3600000 };
+  const data = JSON.stringify(payload);
+  const sig = crypto.createHmac('sha256', secret).update(data).digest('hex');
+  return Buffer.from(data).toString('base64') + '.' + sig;
 }
 
-function verifyToken(token) {
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['RS256'] });
-  } catch (err) {
-    return null;
-  }
+function validateToken(token, secret) {
+  const [dataB64, sig] = token.split('.');
+  if (!dataB64 || !sig) return null;
+  const data = Buffer.from(dataB64, 'base64').toString();
+  const expected = crypto.createHmac('sha256', secret).update(data).digest('hex');
+  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
+  const payload = JSON.parse(data);
+  if (payload.exp < Date.now()) return null;
+  return payload;
 }
 
-function checkRateLimit(attempts, lastAttempt) {
-  if (attempts >= MAX_LOGIN_ATTEMPTS) {
-    const cooldown = 15 * 60 * 1000;
-    const elapsed = Date.now() - lastAttempt;
-    if (elapsed < cooldown) {
-      return { allowed: false, retryAfter: Math.ceil((cooldown - elapsed) / 1000) };
-    }
-  }
-  return { allowed: true };
-}
-
-function extractBearerToken(authHeader) {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
-  return authHeader.slice(7).trim();
-}
-
-module.exports = {
-  hashPassword,
-  verifyPassword,
-  generateToken,
-  verifyToken,
-  checkRateLimit,
-  extractBearerToken
-};
+module.exports = { hashPassword, verifyPassword, generateToken, validateToken };
