@@ -351,7 +351,32 @@ function extractFirstAddedLine(patch) {
 /**
  * Build a suggestion comment with the documented code.
  */
+/**
+ * Build a deep-link URL to poly-glot.ai with the file code pre-loaded.
+ * Encodes the original source so users can edit and re-generate in the web UI.
+ * @param {string} code - Original source code
+ * @param {string} filePath - File path (used for language detection)
+ * @param {object} langInfo - Language info object
+ * @returns {string} Full URL to poly-glot.ai with code pre-loaded
+ */
+function buildDeepLink(code, filePath, langInfo) {
+  // Encode the code as base64 to safely pass as a URL parameter
+  const encoded = Buffer.from(code).toString('base64');
+  const ext = filePath.slice(filePath.lastIndexOf('.') + 1);
+  const params = new URLSearchParams({
+    code: encoded,
+    lang: langInfo.language,
+    style: langInfo.docStyle,
+    file: filePath,
+    ext,
+    ref: 'github-app',
+  });
+  return `https://poly-glot.ai/?${params.toString()}`;
+}
+
 function buildSuggestionComment(filePath, original, documented, langInfo, coverage) {
+  const deepLink = buildDeepLink(original, filePath, langInfo);
+
   return [
     `### 📝 Poly-Glot AI — Documentation Suggestion`,
     ``,
@@ -366,7 +391,13 @@ function buildSuggestionComment(filePath, original, documented, langInfo, covera
     ``,
     `</details>`,
     ``,
-    `> 💡 Copy the documented version above into your file, or cherry-pick the comments you want.`,
+    `| Action | Link |`,
+    `|--------|------|`,
+    `| 🌐 **Edit & regenerate in Poly-Glot AI** | [Open \`${filePath}\` in web editor →](${deepLink}) |`,
+    `| 💻 **Use in VS Code** | [Install VS Code Extension →](https://marketplace.visualstudio.com/items?itemName=poly-glot-ai.poly-glot) |`,
+    `| ⌨️ **Use CLI** | \`npx poly-glot-ai-cli comment ${filePath}\` |`,
+    ``,
+    `> 💡 The **web editor link** opens poly-glot.ai with this file's code pre-loaded — regenerate with different settings, modes, or your own API key.`,
     `> Powered by [Poly-Glot AI](https://poly-glot.ai) · ${langInfo.docStyle} format`,
   ].join('\n');
 }
@@ -396,7 +427,10 @@ function buildAnalysisSummary(results, commentCount, config) {
       ? `📝 **${commentCount} file(s)** have documentation suggestions below.`
       : `✅ All analyzed files meet the documentation threshold (${Math.round(config.coverageThreshold * 100)}%).`,
     ``,
-    `> Configure via \`.polyglot.yml\` in your repo root · [Docs](https://poly-glot.ai) · [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=poly-glot-ai.poly-glot)`,
+    `| 🌐 [Open Poly-Glot AI Web Editor](https://poly-glot.ai/?ref=github-app) | 💻 [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=poly-glot-ai.poly-glot) | ⌨️ [CLI on npm](https://www.npmjs.com/package/poly-glot-ai-cli) |`,
+    `|---|---|---|`,
+    ``,
+    `> Configure via \`.polyglot.yml\` in your repo root · [Documentation](https://poly-glot.ai) · [GitHub App Source](https://github.com/hmoses/poly-glot-github-app)`,
   ].join('\n');
 }
 
