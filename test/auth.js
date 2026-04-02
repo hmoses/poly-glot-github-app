@@ -1,41 +1,44 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
-function hashPassword(password, salt) {
-  const iterations = 10000;
-  const keylen = 64;
-  const digest = 'sha512';
-  return crypto.pbkdf2Sync(password, salt, iterations, keylen, digest).toString('hex');
+const SALT_ROUNDS = 12;
+const TOKEN_EXPIRY = '7d';
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.createHmac('sha256', salt).update(password).digest('hex');
+  return `${salt}:${hash}`;
 }
 
-function generateSalt() {
-  return crypto.randomBytes(16).toString('hex');
+function verifyPassword(password, stored) {
+  const [salt, hash] = stored.split(':');
+  const attempt = crypto.createHmac('sha256', salt).update(password).digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(attempt), Buffer.from(hash));
 }
 
-function verifyPassword(password, hash, salt) {
-  const newHash = hashPassword(password, salt);
-  return crypto.timingSafeEqual(Buffer.from(newHash), Buffer.from(hash));
+function generateToken(userId, role) {
+  return jwt.sign({ sub: userId, role, iat: Math.floor(Date.now() / 1000) }, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
 }
 
-function createToken(userId, secret, expiresIn) {
-  return jwt.sign({ sub: userId, iat: Math.floor(Date.now() / 1000) }, secret, { expiresIn });
-}
-
-function verifyToken(token, secret) {
+function verifyToken(token) {
   try {
-    return jwt.verify(token, secret);
+    return jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
     return null;
   }
 }
 
-function isRateLimited(ip, attempts, windowMs, store) {
+function isRateLimited(ip, attempts, windowSeconds) {
   const key = `ratelimit:${ip}`;
   const now = Date.now();
-  const windowStart = now - windowMs;
-  const recentAttempts = (store[key] || []).filter(t => t > windowStart);
-  store[key] = [...recentAttempts, now];
-  return recentAttempts.length >= attempts;
+  const window = windowSeconds * 1000;
+  if (!isRateLimited._store) isRateLimited._store = {};
+  const store = isRateLimited._store;
+  if (!store[key]) store[key] = [];
+  store[key] = store[key].filter(t => now - t < window);
+  if (store[key].length >= attempts) return true;
+  store[key].push(now);
+  return false;
 }
 
-module.exports = { hashPassword, generateSalt, verifyPassword, createToken, verifyToken, isRateLimited };
+module.exports = { hashPassword, verifyPassword, generateToken, verifyToken, isRateLimited };
