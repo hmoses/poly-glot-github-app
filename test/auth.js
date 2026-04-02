@@ -1,37 +1,43 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
-function hashPassword(password, salt) {
-  if (!salt) salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
-  return { hash, salt };
+const SALT_ROUNDS = 10;
+const TOKEN_EXPIRY = '7d';
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.createHmac('sha256', salt).update(password).digest('hex');
+  return `${salt}:${hash}`;
 }
 
-function verifyPassword(password, hash, salt) {
-  const result = hashPassword(password, salt);
-  return result.hash === hash;
+function verifyPassword(password, stored) {
+  const [salt, hash] = stored.split(':');
+  const check = crypto.createHmac('sha256', salt).update(password).digest('hex');
+  return check === hash;
 }
 
-function generateToken(userId, role, secret, expiresIn) {
-  if (!expiresIn) expiresIn = '24h';
-  return jwt.sign({ userId, role, iat: Math.floor(Date.now() / 1000) }, secret, { expiresIn });
+function generateToken(userId, role) {
+  if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET not set');
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
 }
 
-function verifyToken(token, secret) {
+function verifyToken(token) {
   try {
-    return { valid: true, payload: jwt.verify(token, secret) };
+    return jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    if (err.name === 'TokenExpiredError') return { valid: false, reason: 'expired' };
-    if (err.name === 'JsonWebTokenError') return { valid: false, reason: 'invalid' };
-    return { valid: false, reason: 'unknown' };
+    return null;
   }
 }
 
-function rateLimit(attempts, windowMs, maxAttempts) {
+function isRateLimited(ip, attempts, windowSeconds) {
+  if (!global._rateLimits) global._rateLimits = {};
   const now = Date.now();
-  const windowStart = now - windowMs;
-  const recentAttempts = attempts.filter(ts => ts > windowStart);
-  return recentAttempts.length >= maxAttempts;
+  const key = `${ip}`;
+  if (!global._rateLimits[key]) global._rateLimits[key] = [];
+  global._rateLimits[key] = global._rateLimits[key].filter(t => now - t < windowSeconds * 1000);
+  if (global._rateLimits[key].length >= attempts) return true;
+  global._rateLimits[key].push(now);
+  return false;
 }
 
-module.exports = { hashPassword, verifyPassword, generateToken, verifyToken, rateLimit };
+module.exports = { hashPassword, verifyPassword, generateToken, verifyToken, isRateLimited };
