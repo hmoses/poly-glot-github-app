@@ -1,31 +1,37 @@
-// Undocumented auth module — no JSDoc
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 function hashPassword(password, salt) {
-  return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  if (!salt) salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+  return { hash, salt };
 }
 
 function verifyPassword(password, hash, salt) {
-  const incoming = hashPassword(password, salt);
-  return crypto.timingSafeEqual(Buffer.from(incoming), Buffer.from(hash));
+  const result = hashPassword(password, salt);
+  return result.hash === hash;
 }
 
-function generateToken(userId, secret) {
-  const payload = { userId, iat: Date.now(), exp: Date.now() + 3600000 };
-  const data = JSON.stringify(payload);
-  const sig = crypto.createHmac('sha256', secret).update(data).digest('hex');
-  return Buffer.from(data).toString('base64') + '.' + sig;
+function generateToken(userId, role, secret, expiresIn) {
+  if (!expiresIn) expiresIn = '24h';
+  return jwt.sign({ userId, role, iat: Math.floor(Date.now() / 1000) }, secret, { expiresIn });
 }
 
-function validateToken(token, secret) {
-  const [dataB64, sig] = token.split('.');
-  if (!dataB64 || !sig) return null;
-  const data = Buffer.from(dataB64, 'base64').toString();
-  const expected = crypto.createHmac('sha256', secret).update(data).digest('hex');
-  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-  const payload = JSON.parse(data);
-  if (payload.exp < Date.now()) return null;
-  return payload;
+function verifyToken(token, secret) {
+  try {
+    return { valid: true, payload: jwt.verify(token, secret) };
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') return { valid: false, reason: 'expired' };
+    if (err.name === 'JsonWebTokenError') return { valid: false, reason: 'invalid' };
+    return { valid: false, reason: 'unknown' };
+  }
 }
 
-module.exports = { hashPassword, verifyPassword, generateToken, validateToken };
+function rateLimit(attempts, windowMs, maxAttempts) {
+  const now = Date.now();
+  const windowStart = now - windowMs;
+  const recentAttempts = attempts.filter(ts => ts > windowStart);
+  return recentAttempts.length >= maxAttempts;
+}
+
+module.exports = { hashPassword, verifyPassword, generateToken, verifyToken, rateLimit };
