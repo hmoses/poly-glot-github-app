@@ -1,36 +1,59 @@
-const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
-const SALT_ROUNDS = 12;
-const TOKEN_EXPIRY = '7d';
+const SESSION_DURATION = 60 * 60 * 24;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60;
 
-async function hashPassword(password) {
-  return bcrypt.hash(password, SALT_ROUNDS);
+function hashPassword(password, salt) {
+  return crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
 }
 
-async function verifyPassword(password, hash) {
-  return bcrypt.compare(password, hash);
+function generateSalt() {
+  return crypto.randomBytes(32).toString('hex');
 }
 
-function generateToken(userId, role) {
-  return jwt.sign({ sub: userId, role }, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+function validatePassword(password) {
+  if (password.length < 8) return { valid: false, reason: 'too_short' };
+  if (!/[A-Z]/.test(password)) return { valid: false, reason: 'no_uppercase' };
+  if (!/[0-9]/.test(password)) return { valid: false, reason: 'no_number' };
+  if (!/[^A-Za-z0-9]/.test(password)) return { valid: false, reason: 'no_special' };
+  return { valid: true };
 }
 
-function verifyToken(token) {
+function createToken(userId, role, secret) {
+  return jwt.sign(
+    { sub: userId, role, iat: Math.floor(Date.now() / 1000) },
+    secret,
+    { expiresIn: SESSION_DURATION, algorithm: 'HS256' }
+  );
+}
+
+function verifyToken(token, secret) {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return { valid: true, payload: jwt.verify(token, secret) };
   } catch (err) {
-    return null;
+    return { valid: false, error: err.message };
   }
 }
 
-async function authenticateUser(email, password, db) {
-  const user = await db.users.findByEmail(email);
-  if (!user) return null;
-  const valid = await verifyPassword(password, user.passwordHash);
-  if (!valid) return null;
-  const token = generateToken(user.id, user.role);
-  return { user, token };
+function isAccountLocked(loginAttempts, lastAttemptTime) {
+  if (loginAttempts < MAX_LOGIN_ATTEMPTS) return false;
+  const elapsed = (Date.now() - lastAttemptTime) / 1000;
+  return elapsed < LOCKOUT_DURATION;
 }
 
-module.exports = { hashPassword, verifyPassword, generateToken, verifyToken, authenticateUser };
+function sanitizeUser(user) {
+  const { password, salt, resetToken, ...safe } = user;
+  return safe;
+}
+
+module.exports = {
+  hashPassword,
+  generateSalt,
+  validatePassword,
+  createToken,
+  verifyToken,
+  isAccountLocked,
+  sanitizeUser
+};
