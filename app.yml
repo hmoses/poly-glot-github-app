@@ -1,0 +1,39 @@
+# ─── Poly-Glot AI GitHub App Manifest ────────────────────────
+# Use this to register the app at:
+# https://github.com/settings/apps/new
+
+name: Poly-Glot AI
+description: >-
+  Automatically add professional documentation comments to your pull requests.
+  JSDoc, PyDoc, Javadoc, Doxygen, KDoc, and why-comments for 12 languages.
+  Powered by OpenAI & Anthropic — your code stays private.
+
+url: https://poly-glot.ai
+
+hook_attributes:
+  url: https://your-server.example.com/webhook
+  active: true
+
+redirect_url: https://poly-glot.ai/github/callback
+callback_urls:
+  - https://poly-glot.ai/github/callback
+
+setup_url: https://poly-glot.ai/github/setup
+setup_on_update: true
+
+public: true
+
+default_permissions:
+  # Read repository contents to analyze code
+  contents: read
+  # Read and write pull requests to post review comments
+  pull_requests: write
+  # Create check runs for documentation analysis
+  checks: write
+  # Read metadata
+  metadata: read
+
+default_events:
+  - pull_request
+  - check_run
+  - installation

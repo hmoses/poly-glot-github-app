@@ -1,0 +1,321 @@
+/**
+ * Poly-Glot AI GitHub App — Main server.
+ * 
+ * Listens for GitHub webhook events (pull_request opened/synchronize)
+ * and automatically adds documentation comments to changed files.
+ * 
+ * @see https://poly-glot.ai
+ * @author Harold Moses
+ */
+
+require('dotenv').config();
+
+const express = require('express');
+const crypto = require('crypto');
+const pino = require('pino');
+const { createInstallationClient, getPullRequestFiles, getFileContent, createReview, getRepoConfig, createCheckRun } = require('./lib/github');
+const { generateComments, analyzeCoverage } = require('./lib/polyglot');
+const { detectLanguage, shouldSkip } = require('./lib/languages');
+const { parseConfig, isFileAllowed } = require('./lib/config');
+
+const logger = pino({ name: 'poly-glot-app' });
+
+const app = express();
+app.use(express.json({ limit: '25mb' }));
+
+const PORT = process.env.PORT || 3000;
+
+// ─── Health check ────────────────────────────────────────────
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'Poly-Glot AI GitHub App',
+    version: '1.0.0',
+    status: 'running',
+    docs: 'https://poly-glot.ai',
+  });
+});
+
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ─── Webhook signature verification ─────────────────────────
+function verifyWebhookSignature(req, res, next) {
+  const signature = req.headers['x-hub-signature-256'];
+  const secret = process.env.GITHUB_WEBHOOK_SECRET;
+
+  if (!secret) {
+    logger.warn('GITHUB_WEBHOOK_SECRET not set — skipping verification');
+    return next();
+  }
+
+  if (!signature) {
+    return res.status(401).json({ error: 'Missing signature' });
+  }
+
+  const hmac = crypto.createHmac('sha256', secret);
+  hmac.update(JSON.stringify(req.body));
+  const expected = `sha256=${hmac.digest('hex')}`;
+
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  next();
+}
+
+// ─── Webhook endpoint ────────────────────────────────────────
+app.post('/webhook', verifyWebhookSignature, async (req, res) => {
+  const event = req.headers['x-github-event'];
+  const payload = req.body;
+
+  logger.info({ event, action: payload.action }, 'Webhook received');
+
+  // Respond immediately — process async
+  res.status(202).json({ status: 'accepted' });
+
+  try {
+    if (event === 'pull_request' && ['opened', 'synchronize'].includes(payload.action)) {
+      await handlePullRequest(payload);
+    } else if (event === 'installation' && payload.action === 'created') {
+      logger.info({ installationId: payload.installation.id, account: payload.installation.account.login }, 'New installation');
+    } else {
+      logger.debug({ event, action: payload.action }, 'Ignoring event');
+    }
+  } catch (err) {
+    logger.error({ err: err.message, stack: err.stack, event }, 'Error processing webhook');
+  }
+});
+
+// ─── Pull Request Handler ────────────────────────────────────
+async function handlePullRequest(payload) {
+  const { pull_request: pr, installation, repository } = payload;
+  const owner = repository.owner.login;
+  const repo = repository.name;
+  const pullNumber = pr.number;
+  const headSha = pr.head.sha;
+  const headRef = pr.head.ref;
+  const installationId = installation.id;
+
+  logger.info({ owner, repo, pullNumber, headSha }, 'Processing pull request');
+
+  // Create authenticated client for this installation
+  const octokit = createInstallationClient(installationId);
+
+  // Create an in-progress check run
+  await createCheckRun(octokit, owner, repo, headSha, 'in_progress', null, {
+    title: 'Poly-Glot AI — Analyzing documentation coverage…',
+    summary: 'Scanning changed files for missing documentation.',
+  });
+
+  // Load repo config (.polyglot.yml)
+  const rawConfig = await getRepoConfig(octokit, owner, repo, headRef);
+  const config = parseConfig(rawConfig);
+
+  // Add API keys from environment (installation-level or app-level)
+  config.openaiKey = process.env.OPENAI_API_KEY;
+  config.anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+  if (!config.openaiKey && !config.anthropicKey) {
+    logger.warn({ owner, repo }, 'No AI API key configured — skipping');
+    await createCheckRun(octokit, owner, repo, headSha, 'completed', 'neutral', {
+      title: 'Poly-Glot AI — No API key configured',
+      summary: 'Set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` in your app environment to enable automatic documentation.',
+    });
+    return;
+  }
+
+  // Auto-select provider based on available keys
+  if (!config.openaiKey && config.provider === 'openai') {
+    config.provider = 'anthropic';
+  } else if (!config.anthropicKey && config.provider === 'anthropic') {
+    config.provider = 'openai';
+  }
+
+  // Get changed files
+  const files = await getPullRequestFiles(octokit, owner, repo, pullNumber);
+  logger.info({ fileCount: files.length }, 'PR files fetched');
+
+  // Filter and analyze files
+  const reviewComments = [];
+  const analysisResults = [];
+  let processedCount = 0;
+
+  for (const file of files) {
+    // Skip deleted files, renames, and binary files
+    if (file.status === 'removed' || !file.patch) continue;
+
+    // Skip unsupported files
+    if (shouldSkip(file.filename)) continue;
+    if (!detectLanguage(file.filename)) continue;
+    if (!isFileAllowed(file.filename, config)) continue;
+
+    // Respect max files limit
+    if (processedCount >= config.maxFiles) {
+      logger.info({ maxFiles: config.maxFiles }, 'Max files limit reached');
+      break;
+    }
+
+    // Get full file content
+    const content = await getFileContent(octokit, owner, repo, file.filename, headRef);
+    if (!content) continue;
+
+    // Check file size
+    if (Buffer.byteLength(content) > config.maxFileSize) {
+      logger.info({ file: file.filename, size: Buffer.byteLength(content) }, 'File too large, skipping');
+      continue;
+    }
+
+    // Analyze documentation coverage
+    const coverage = analyzeCoverage(content, file.filename);
+    analysisResults.push({ file: file.filename, ...coverage });
+
+    if (!coverage.needsDocs) {
+      logger.info({ file: file.filename, score: coverage.score }, 'Documentation sufficient');
+      continue;
+    }
+
+    // Generate documentation
+    logger.info({ file: file.filename, mode: config.mode }, 'Generating documentation');
+    const documented = await generateComments(content, file.filename, config, { mode: config.mode });
+
+    if (!documented || documented === content) {
+      logger.info({ file: file.filename }, 'No documentation changes needed');
+      continue;
+    }
+
+    // Build a suggestion comment
+    const langInfo = detectLanguage(file.filename);
+    const firstChangedLine = extractFirstAddedLine(file.patch);
+
+    reviewComments.push({
+      path: file.filename,
+      line: firstChangedLine || 1,
+      body: buildSuggestionComment(file.filename, content, documented, langInfo, coverage),
+    });
+
+    processedCount++;
+  }
+
+  // Build analysis summary
+  const summary = buildAnalysisSummary(analysisResults, reviewComments.length, config);
+
+  // Post review if there are comments
+  if (reviewComments.length > 0) {
+    if (config.reviewStyle === 'inline') {
+      await createReview(octokit, owner, repo, pullNumber, headSha, reviewComments, summary);
+    } else {
+      // Post as a single PR comment
+      let body = summary + '\n\n---\n\n';
+      for (const c of reviewComments) {
+        body += c.body + '\n\n---\n\n';
+      }
+      await octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: pullNumber,
+        body,
+      });
+    }
+  }
+
+  // Complete the check run
+  const conclusion = reviewComments.length > 0 ? 'action_required' : 'success';
+  await createCheckRun(octokit, owner, repo, headSha, 'completed', conclusion, {
+    title: reviewComments.length > 0
+      ? `Poly-Glot AI — ${reviewComments.length} file(s) need documentation`
+      : 'Poly-Glot AI — All files well documented ✅',
+    summary,
+    text: analysisResults.map(r =>
+      `| \`${r.file}\` | ${r.needsDocs ? '⚠️' : '✅'} | ${r.score} | ${r.reason} |`
+    ).join('\n'),
+  });
+
+  logger.info({ owner, repo, pullNumber, comments: reviewComments.length }, 'PR processing complete');
+}
+
+// ─── Helpers ─────────────────────────────────────────────────
+
+/**
+ * Extract the first added line number from a patch.
+ */
+function extractFirstAddedLine(patch) {
+  if (!patch) return 1;
+  const lines = patch.split('\n');
+  let currentLine = 0;
+
+  for (const line of lines) {
+    const hunkMatch = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)/);
+    if (hunkMatch) {
+      currentLine = parseInt(hunkMatch[1], 10);
+      continue;
+    }
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      return currentLine;
+    }
+    if (!line.startsWith('-')) {
+      currentLine++;
+    }
+  }
+
+  return 1;
+}
+
+/**
+ * Build a suggestion comment with the documented code.
+ */
+function buildSuggestionComment(filePath, original, documented, langInfo, coverage) {
+  return [
+    `### 📝 Poly-Glot AI — Documentation Suggestion`,
+    ``,
+    `**\`${filePath}\`** — ${langInfo.name} (${langInfo.docStyle}) — Coverage: ${Math.round(coverage.score * 100)}%`,
+    ``,
+    `<details>`,
+    `<summary>📄 View suggested documented version (click to expand)</summary>`,
+    ``,
+    '```' + (langInfo.language || ''),
+    documented,
+    '```',
+    ``,
+    `</details>`,
+    ``,
+    `> 💡 Copy the documented version above into your file, or cherry-pick the comments you want.`,
+    `> Powered by [Poly-Glot AI](https://poly-glot.ai) · ${langInfo.docStyle} format`,
+  ].join('\n');
+}
+
+/**
+ * Build the analysis summary for the review body.
+ */
+function buildAnalysisSummary(results, commentCount, config) {
+  const total = results.length;
+  const needsDocs = results.filter(r => r.needsDocs).length;
+  const avgScore = total > 0
+    ? Math.round((results.reduce((sum, r) => sum + r.score, 0) / total) * 100)
+    : 100;
+
+  return [
+    `## 🤖 Poly-Glot AI Documentation Analysis`,
+    ``,
+    `| Metric | Value |`,
+    `|--------|-------|`,
+    `| Files analyzed | ${total} |`,
+    `| Files needing docs | ${needsDocs} |`,
+    `| Average coverage | ${avgScore}% |`,
+    `| Comment mode | ${config.mode} |`,
+    `| Provider | ${config.provider} |`,
+    ``,
+    commentCount > 0
+      ? `📝 **${commentCount} file(s)** have documentation suggestions below.`
+      : `✅ All analyzed files meet the documentation threshold (${Math.round(config.coverageThreshold * 100)}%).`,
+    ``,
+    `> Configure via \`.polyglot.yml\` in your repo root · [Docs](https://poly-glot.ai) · [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=poly-glot-ai.poly-glot)`,
+  ].join('\n');
+}
+
+// ─── Start server ────────────────────────────────────────────
+app.listen(PORT, () => {
+  logger.info({ port: PORT }, '🚀 Poly-Glot AI GitHub App is running');
+});
+
+module.exports = app;

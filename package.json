@@ -1,0 +1,50 @@
+{
+  "name": "poly-glot-github-app",
+  "version": "1.0.0",
+  "description": "Poly-Glot AI GitHub App — Automatically add professional documentation comments to pull requests. JSDoc, PyDoc, Javadoc, Doxygen, and why-comments for 12 languages.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js",
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "github-app",
+    "code-documentation",
+    "jsdoc",
+    "pydoc",
+    "javadoc",
+    "doxygen",
+    "ai",
+    "openai",
+    "anthropic",
+    "code-comments",
+    "poly-glot"
+  ],
+  "author": "Harold Moses <hwmoses2@icloud.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hmoses/poly-glot-github-app"
+  },
+  "homepage": "https://poly-glot.ai",
+  "dependencies": {
+    "octokit": "^4.1.0",
+    "@octokit/webhooks": "^13.4.2",
+    "@octokit/auth-app": "^7.1.4",
+    "openai": "^4.82.0",
+    "@anthropic-ai/sdk": "^0.39.0",
+    "express": "^4.21.0",
+    "dotenv": "^16.4.7",
+    "js-yaml": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0"
+  },
+  "devDependencies": {
+    "smee-client": "^2.0.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
