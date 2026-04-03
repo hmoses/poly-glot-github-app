@@ -157,7 +157,7 @@ const PORT = process.env.PORT || 3000;
 app.get('/', (_req, res) => {
   res.json({
     name: 'Poly-Glot AI GitHub App',
-    version: '1.0.0',
+    version: '1.1.0',
     status: 'running',
     docs: 'https://poly-glot.ai',
   });
