@@ -30,6 +30,33 @@ const FREE_LANGUAGES    = ['javascript', 'typescript', 'python', 'java'];
 // Format: { [installationId_monthKey]: count }
 const usageStore = new Map();
 
+// ─── Installation tracker (persists unique installation IDs) ─────────────────
+// Survives Render restarts via a simple JSON file on disk (ephemeral — floor only)
+const INSTALLS_FILE = '/tmp/pg_installations.json';
+const installationSet = new Set();
+
+// Load previously seen installations from disk
+try {
+    const raw = require('fs').readFileSync(INSTALLS_FILE, 'utf8');
+    JSON.parse(raw).forEach(id => installationSet.add(id));
+    logger.info({ count: installationSet.size }, 'Loaded installation IDs from disk');
+} catch { /* first boot — start fresh */ }
+
+function saveInstallations() {
+    try {
+        require('fs').writeFileSync(INSTALLS_FILE, JSON.stringify([...installationSet]), 'utf8');
+    } catch { /* non-fatal */ }
+}
+
+function trackInstallation(installationId) {
+    const id = String(installationId);
+    if (!installationSet.has(id)) {
+        installationSet.add(id);
+        saveInstallations();
+        logger.info({ installationId: id, total: installationSet.size }, 'New installation tracked');
+    }
+}
+
 function monthKey() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -140,6 +167,16 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ─── Public stats endpoint (used by poly-glot.ai live counter) ───────────────
+app.get('/stats', (_req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Cache-Control', 'public, max-age=300'); // 5-min CDN cache
+  res.json({
+    installations: installationSet.size,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // ─── Webhook signature verification ─────────────────────────
 function verifyWebhookSignature(req, res, next) {
   const signature = req.headers['x-hub-signature-256'];
@@ -179,10 +216,14 @@ app.post('/webhook', verifyWebhookSignature, async (req, res) => {
   res.status(202).json({ status: 'accepted' });
 
   try {
+    // Track every unique installation we see
+    const installId = payload.installation?.id;
+    if (installId) trackInstallation(installId);
+
     if (event === 'pull_request' && ['opened', 'synchronize'].includes(payload.action)) {
       await handlePullRequest(payload);
-    } else if (event === 'installation' && payload.action === 'created') {
-      logger.info({ installationId: payload.installation.id, account: payload.installation.account.login }, 'New installation');
+    } else if (event === 'installation') {
+      logger.info({ installationId: installId, action: payload.action, account: payload.installation?.account?.login }, 'Installation event');
     } else {
       logger.debug({ event, action: payload.action }, 'Ignoring event');
     }
