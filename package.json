@@ -1,6 +1,6 @@
 {
   "name": "poly-glot-github-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Poly-Glot AI GitHub App — Automatically add professional documentation comments to pull requests. JSDoc, PyDoc, Javadoc, Doxygen, and why-comments for 12 languages.",
   "main": "server.js",
   "scripts": {
