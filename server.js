@@ -11,12 +11,103 @@
 require('dotenv').config();
 
 const express = require('express');
-const crypto = require('crypto');
-const pino = require('pino');
+const crypto  = require('crypto');
+const https   = require('https');
+const pino    = require('pino');
 const { createInstallationClient, getPullRequestFiles, getFileContent, createReview, getRepoConfig, createCheckRun } = require('./lib/github');
 const { generateComments, analyzeCoverage } = require('./lib/polyglot');
 const { detectLanguage, shouldSkip } = require('./lib/languages');
 const { parseConfig, isFileAllowed } = require('./lib/config');
+
+// ─── Plan constants ───────────────────────────────────────────
+const AUTH_API          = 'https://poly-glot.ai/api/auth';
+const FREE_PR_LIMIT     = 25;   // free installs: max PRs per month
+const PRO_PLANS         = ['pro', 'team', 'enterprise'];
+const UPGRADE_URL       = 'https://buy.stripe.com/aFa28teFm8by5s2eAc14409?prefilled_promo_code=EARLYBIRD3';
+const FREE_LANGUAGES    = ['javascript', 'typescript', 'python', 'java'];
+
+// ─── In-memory usage store (per installation, per month) ─────
+// Format: { [installationId_monthKey]: count }
+const usageStore = new Map();
+
+function monthKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function getInstallationUsage(installationId) {
+    return usageStore.get(`${installationId}_${monthKey()}`) || 0;
+}
+
+function incrementInstallationUsage(installationId) {
+    const key   = `${installationId}_${monthKey()}`;
+    const count = (usageStore.get(key) || 0) + 1;
+    usageStore.set(key, count);
+    return count;
+}
+
+/**
+ * Validate a license token against the poly-glot.ai auth API.
+ * Returns the plan string ('pro'|'team'|'enterprise') or null if invalid/free.
+ */
+async function validateLicenseToken(token) {
+    if (!token) return null;
+    return new Promise((resolve) => {
+        const body = JSON.stringify({ token });
+        const req  = https.request(AUTH_API, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    resolve(PRO_PLANS.includes(json.plan) ? json.plan : null);
+                } catch { resolve(null); }
+            });
+        });
+        req.on('error', () => resolve(null));
+        req.setTimeout(5000, () => { req.destroy(); resolve(null); });
+        req.write(body);
+        req.end();
+    });
+}
+
+/**
+ * Get the license token for a repo from .polyglot.yml config or env.
+ */
+function getLicenseToken(config) {
+    return config.licenseToken || config.license_token || process.env.POLYGLOT_LICENSE_TOKEN || '';
+}
+
+/**
+ * Build the upgrade required comment body.
+ */
+function buildUpgradeComment(reason, used, limit) {
+    return [
+        `## 🔒 Poly-Glot AI — Upgrade Required`,
+        ``,
+        `**${reason}**`,
+        ``,
+        `| Plan | Price | PRs/month | Languages |`,
+        `|------|-------|-----------|-----------|`,
+        `| Free | $0 | ${limit} | JS, TS, Python, Java |`,
+        `| Pro | $9/mo | Unlimited | All 12 languages |`,
+        `| Team | $29/mo | Unlimited | All 12 + shared token |`,
+        ``,
+        `> 🎁 Use code **\`EARLYBIRD3\`** for **50% off your first 3 months**`,
+        ``,
+        `**[→ Upgrade at poly-glot.ai](${UPGRADE_URL})**`,
+        ``,
+        `Already subscribed? Add your license token to \`.polyglot.yml\`:`,
+        `\`\`\`yaml`,
+        `license_token: YOUR_TOKEN_HERE`,
+        `\`\`\``,
+        ``,
+        `> Powered by [Poly-Glot AI](https://poly-glot.ai)`,
+    ].join('\n');
+}
 
 const logger = pino({ name: 'poly-glot-app' });
 
@@ -125,6 +216,32 @@ async function handlePullRequest(payload) {
   const rawConfig = await getRepoConfig(octokit, owner, repo, headRef);
   const config = parseConfig(rawConfig);
 
+  // ── Plan gate: validate license token ────────────────────────────────────
+  const licenseToken = getLicenseToken(config);
+  const plan         = await validateLicenseToken(licenseToken);
+  const isPro        = PRO_PLANS.includes(plan);
+
+  logger.info({ owner, repo, plan: plan || 'free', isPro }, 'Plan resolved');
+
+  // ── Gate: monthly PR limit for free installations ─────────────────────────
+  if (!isPro) {
+      const used = getInstallationUsage(installationId);
+      if (used >= FREE_PR_LIMIT) {
+          logger.warn({ owner, repo, used, limit: FREE_PR_LIMIT }, 'Free PR limit reached');
+          await createCheckRun(octokit, owner, repo, headSha, 'completed', 'neutral', {
+              title: `Poly-Glot AI — Free plan limit reached (${used}/${FREE_PR_LIMIT} PRs this month)`,
+              summary: buildUpgradeComment(
+                  `You've used ${used}/${FREE_PR_LIMIT} free PR reviews this month.`,
+                  used, FREE_PR_LIMIT
+              ),
+          });
+          return;
+      }
+      // Increment usage
+      incrementInstallationUsage(installationId);
+      logger.info({ owner, repo, used: used + 1, limit: FREE_PR_LIMIT }, 'Free PR usage incremented');
+  }
+
   // Resolve API keys: repo-level config → server environment variables
   const { openaiKey, anthropicKey } = await resolveApiKeys(octokit, owner, repo, config);
   config.openaiKey = openaiKey;
@@ -170,8 +287,24 @@ async function handlePullRequest(payload) {
 
     // Skip unsupported files
     if (shouldSkip(file.filename)) continue;
-    if (!detectLanguage(file.filename)) continue;
+    const langInfo = detectLanguage(file.filename);
+    if (!langInfo) continue;
     if (!isFileAllowed(file.filename, config)) continue;
+
+    // ── Gate: language restriction for free plan ──────────────────────────
+    if (!isPro && !FREE_LANGUAGES.includes(langInfo.language)) {
+      logger.info(
+        { file: file.filename, language: langInfo.language },
+        'Skipping file — language requires Pro plan'
+      );
+      analysisResults.push({
+        file: file.filename,
+        needsDocs: false,
+        score: 'N/A',
+        reason: `🔒 ${langInfo.name} requires Pro plan (free: JS, TS, Python, Java)`,
+      });
+      continue;
+    }
 
     // Respect max files limit
     if (processedCount >= config.maxFiles) {
@@ -208,7 +341,6 @@ async function handlePullRequest(payload) {
     }
 
     // Build a suggestion comment
-    const langInfo = detectLanguage(file.filename);
     const firstChangedLine = extractFirstAddedLine(file.patch);
 
     reviewComments.push({
