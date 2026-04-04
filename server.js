@@ -244,6 +244,15 @@ const logger = pino({ name: 'poly-glot-app' });
 
 const app = express();
 
+// ── CORS — allow browser requests from poly-glot.ai and dashboard ────────────
+app.use((_req, res, next) => {
+  res.set('Access-Control-Allow-Origin',  '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+app.options('*', (_req, res) => res.sendStatus(204));
+
 // Capture raw body for signature verification BEFORE JSON parsing
 app.use((req, _res, next) => {
   let data = '';
