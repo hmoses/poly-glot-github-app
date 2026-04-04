@@ -30,31 +30,135 @@ const FREE_LANGUAGES    = ['javascript', 'typescript', 'python', 'java'];
 // Format: { [installationId_monthKey]: count }
 const usageStore = new Map();
 
-// ─── Installation tracker (persists unique installation IDs) ─────────────────
-// Survives Render restarts via a simple JSON file on disk (ephemeral — floor only)
-const INSTALLS_FILE = '/tmp/pg_installations.json';
+// ─── Installation tracker (local set — used as a floor / fallback) ────────────
 const installationSet = new Set();
-
-// Load previously seen installations from disk
-try {
-    const raw = require('fs').readFileSync(INSTALLS_FILE, 'utf8');
-    JSON.parse(raw).forEach(id => installationSet.add(id));
-    logger.info({ count: installationSet.size }, 'Loaded installation IDs from disk');
-} catch { /* first boot — start fresh */ }
-
-function saveInstallations() {
-    try {
-        require('fs').writeFileSync(INSTALLS_FILE, JSON.stringify([...installationSet]), 'utf8');
-    } catch { /* non-fatal */ }
-}
 
 function trackInstallation(installationId) {
     const id = String(installationId);
     if (!installationSet.has(id)) {
         installationSet.add(id);
-        saveInstallations();
-        logger.info({ installationId: id, total: installationSet.size }, 'New installation tracked');
+        logger.info({ installationId: id, local: installationSet.size }, 'New installation tracked locally');
     }
+}
+
+// ─── GitHub App API — fetch real installation count ───────────────────────────
+// Uses a JWT signed with the App's private key to call GET /app/installations.
+// This is the authoritative count and survives Render cold starts.
+// Result is cached in memory for STATS_CACHE_TTL_MS to avoid hammering the API.
+const STATS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+let _cachedInstallCount  = 0;
+let _cacheExpiry         = 0;
+
+function getPrivateKeyForJWT() {
+    const key = process.env.GITHUB_PRIVATE_KEY || '';
+    // Render stores multi-line secrets as \n-escaped strings
+    return key.replace(/\\n/g, '\n');
+}
+
+/**
+ * Sign a minimal GitHub App JWT (RS256) using Node's built-in crypto.
+ * Avoids pulling in an extra dependency — the JWT is only used for the
+ * /app/installations call which has a 10-minute validity window.
+ */
+function signAppJWT() {
+    const appId      = process.env.GITHUB_APP_ID;
+    const privateKey = getPrivateKeyForJWT();
+    if (!appId || !privateKey) return null;
+
+    const nowSec = Math.floor(Date.now() / 1000);
+    const header  = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
+    const payload = Buffer.from(JSON.stringify({ iat: nowSec - 60, exp: nowSec + 540, iss: String(appId) })).toString('base64url');
+    const sigInput = `${header}.${payload}`;
+
+    try {
+        const sig = crypto.createSign('RSA-SHA256').update(sigInput).sign(privateKey, 'base64url');
+        return `${sigInput}.${sig}`;
+    } catch (err) {
+        logger.warn({ err: err.message }, 'JWT signing failed — falling back to local count');
+        return null;
+    }
+}
+
+/**
+ * Fetch the real installation count from GitHub's API.
+ * Paginates through all installations (100/page) to get the true total.
+ * Returns the count, or null on error (caller uses fallback).
+ */
+async function fetchGitHubInstallationCount() {
+    const jwt = signAppJWT();
+    if (!jwt) return null;
+
+    return new Promise((resolve) => {
+        let total = 0;
+        let page  = 1;
+
+        function fetchPage() {
+            const path = `/app/installations?per_page=100&page=${page}`;
+            const req  = https.request({
+                hostname: 'api.github.com',
+                path,
+                method:  'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwt}`,
+                    'Accept':        'application/vnd.github+json',
+                    'User-Agent':    'poly-glot-ai-github-app/1.1.0',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                }
+            }, (res) => {
+                let body = '';
+                res.on('data', chunk => { body += chunk; });
+                res.on('end', () => {
+                    try {
+                        if (res.statusCode !== 200) {
+                            logger.warn({ status: res.statusCode, path }, 'GitHub API non-200');
+                            return resolve(null);
+                        }
+                        const items = JSON.parse(body);
+                        if (!Array.isArray(items)) return resolve(null);
+                        total += items.length;
+                        if (items.length === 100) {
+                            // There may be more — fetch next page
+                            page++;
+                            fetchPage();
+                        } else {
+                            logger.info({ total, pages: page }, 'GitHub installation count fetched');
+                            resolve(total);
+                        }
+                    } catch (e) {
+                        logger.warn({ err: e.message }, 'GitHub API parse error');
+                        resolve(null);
+                    }
+                });
+            });
+            req.on('error', (e) => {
+                logger.warn({ err: e.message }, 'GitHub API request error');
+                resolve(null);
+            });
+            req.setTimeout(8000, () => { req.destroy(); resolve(null); });
+            req.end();
+        }
+        fetchPage();
+    });
+}
+
+/**
+ * Returns the cached GitHub installation count, refreshing if stale.
+ * Falls back to the local installationSet.size if the API is unavailable.
+ */
+async function getInstallationCount() {
+    const now = Date.now();
+    if (now < _cacheExpiry) return _cachedInstallCount;
+
+    const apiCount = await fetchGitHubInstallationCount();
+    if (apiCount !== null) {
+        // API is authoritative — use it, but floor at the local set size
+        _cachedInstallCount = Math.max(apiCount, installationSet.size);
+    } else {
+        // API unavailable — use local set (floor only, won't survive restarts)
+        _cachedInstallCount = installationSet.size;
+    }
+    _cacheExpiry = now + STATS_CACHE_TTL_MS;
+    return _cachedInstallCount;
 }
 
 function monthKey() {
@@ -168,13 +272,22 @@ app.get('/health', (_req, res) => {
 });
 
 // ─── Public stats endpoint (used by poly-glot.ai live counter) ───────────────
-app.get('/stats', (_req, res) => {
+app.get('/stats', async (_req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Cache-Control', 'public, max-age=300'); // 5-min CDN cache
-  res.json({
-    installations: installationSet.size,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    const installations = await getInstallationCount();
+    res.json({
+      installations,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    logger.error({ err: err.message }, '/stats error');
+    res.json({
+      installations: installationSet.size,
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // ─── Webhook signature verification ─────────────────────────
@@ -610,6 +723,11 @@ function buildAnalysisSummary(results, commentCount, config) {
 // ─── Start server ────────────────────────────────────────────
 app.listen(PORT, () => {
   logger.info({ port: PORT }, '🚀 Poly-Glot AI GitHub App is running');
+  // Warm the installation count cache immediately on boot so the first
+  // /stats request is served from cache without blocking
+  getInstallationCount()
+    .then(n => logger.info({ installations: n }, 'Installation count warmed'))
+    .catch(() => {});
 });
 
 module.exports = app;
