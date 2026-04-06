@@ -90,6 +90,41 @@ check_run: true
 
 That's it! Poly-Glot AI will automatically analyze your PR and post documentation suggestions.
 
+---
+
+## 💰 Plans & Pricing
+
+| Feature | Free | Pro ($9/mo) | Team ($29/mo) | Enterprise |
+|---------|------|-------------|---------------|------------|
+| PR reviews / month | 25 | Unlimited | Unlimited | Unlimited |
+| Languages | JS, TS, Python, Java | All 12 | All 12 | All 12 |
+| Doc comment mode | ✅ | ✅ | ✅ | ✅ |
+| WHY comment mode | ❌ | ✅ | ✅ | ✅ |
+| Both mode | ❌ | ✅ | ✅ | ✅ |
+| Web UI + CLI + VS Code | Limited | Full | Full | Full |
+| MCP server calls / month | ❌ | 200 | 1,000 | Unlimited |
+| Seats | 1 | 1 | 5 | Custom |
+| Shared API key pool | ❌ | ❌ | ✅ | ✅ |
+| Team dashboard | ❌ | ❌ | ✅ | ✅ |
+| SSO / private deployment | ❌ | ❌ | ❌ | ✅ |
+| Support | Community | Email | Priority | Dedicated SLA |
+
+> 🎁 Use code **`EARLYBIRD3`** for **50% off your first 3 months** on Pro
+
+**[→ View all plans at poly-glot.ai](https://poly-glot.ai/#pg-pricing-section)**
+
+### Adding your license token
+
+After subscribing, add your license token to `.polyglot.yml` to unlock Pro/Team features:
+
+```yaml
+license_token: YOUR_TOKEN_HERE
+```
+
+Get your token at **[poly-glot.ai/dashboard](https://poly-glot.ai/dashboard)** → Account → License Token.
+
+---
+
 ## 💡 Comment Modes
 
 ### 📖 Doc Mode (default)

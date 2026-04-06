@@ -21,10 +21,26 @@ const { parseConfig, isFileAllowed } = require('./lib/config');
 
 // ─── Plan constants ───────────────────────────────────────────
 const AUTH_API          = 'https://poly-glot.ai/api/auth';
-const FREE_PR_LIMIT     = 25;   // free installs: max PRs per month
+const FREE_PR_LIMIT     = 25;    // free installs: max PRs per calendar month
 const PRO_PLANS         = ['pro', 'team', 'enterprise'];
-const UPGRADE_URL       = 'https://buy.stripe.com/aFa28teFm8by5s2eAc14409?prefilled_promo_code=EARLYBIRD3';
+const UPGRADE_URL       = 'https://poly-glot.ai/#pg-pricing-section';
+const PRO_CHECKOUT_URL  = 'https://buy.stripe.com/fZu14pbtacrO9Ii77K14405?prefilled_promo_code=EARLYBIRD3';
 const FREE_LANGUAGES    = ['javascript', 'typescript', 'python', 'java'];
+
+// ─── Plan limits ──────────────────────────────────────────────────────────────
+const PLAN_PR_LIMITS = {
+  free:       FREE_PR_LIMIT,   // 25 / month
+  pro:        Infinity,        // unlimited
+  team:       Infinity,        // unlimited
+  enterprise: Infinity,        // unlimited
+};
+
+const PLAN_MCP_LIMITS = {
+  free:       0,               // blocked
+  pro:        200,             // per calendar month
+  team:       1000,            // per calendar month
+  enterprise: Infinity,        // unlimited
+};
 
 // ─── In-memory usage store (per installation, per month) ─────
 // Format: { [installationId_monthKey]: count }
@@ -221,15 +237,16 @@ function buildUpgradeComment(reason, used, limit) {
         ``,
         `**${reason}**`,
         ``,
-        `| Plan | Price | PRs/month | Languages |`,
-        `|------|-------|-----------|-----------|`,
-        `| Free | $0 | ${limit} | JS, TS, Python, Java |`,
-        `| Pro | $9/mo | Unlimited | All 12 languages |`,
-        `| Team | $29/mo | Unlimited | All 12 + shared token |`,
+        `| Plan | Price | PRs / month | Languages | MCP calls / month |`,
+        `|------|-------|-------------|-----------|-------------------|`,
+        `| Free | $0 | ${limit} | JS, TS, Python, Java | — |`,
+        `| Pro | $9/mo | Unlimited | All 12 languages | 200 |`,
+        `| Team | $29/mo | Unlimited | All 12 + 5 seats | 1,000 |`,
+        `| Enterprise | Custom | Unlimited | All 12 + SSO | Unlimited |`,
         ``,
-        `> 🎁 Use code **\`EARLYBIRD3\`** for **50% off your first 3 months**`,
+        `> 🎁 Use code **\`EARLYBIRD3\`** for **50% off your first 3 months** on Pro`,
         ``,
-        `**[→ Upgrade at poly-glot.ai](${UPGRADE_URL})**`,
+        `**[→ Upgrade at poly-glot.ai](${PRO_CHECKOUT_URL})**`,
         ``,
         `Already subscribed? Add your license token to \`.polyglot.yml\`:`,
         `\`\`\`yaml`,
@@ -382,27 +399,29 @@ async function handlePullRequest(payload) {
   // ── Plan gate: validate license token ────────────────────────────────────
   const licenseToken = getLicenseToken(config);
   const plan         = await validateLicenseToken(licenseToken);
-  const isPro        = PRO_PLANS.includes(plan);
+  const resolvedPlan = plan || 'free';
+  const isPro        = PRO_PLANS.includes(resolvedPlan);
+  const prLimit      = PLAN_PR_LIMITS[resolvedPlan] ?? FREE_PR_LIMIT;
 
-  logger.info({ owner, repo, plan: plan || 'free', isPro }, 'Plan resolved');
+  logger.info({ owner, repo, plan: resolvedPlan, isPro, prLimit }, 'Plan resolved');
 
-  // ── Gate: monthly PR limit for free installations ─────────────────────────
+  // ── Gate: monthly PR limit (enforced for free; unlimited for Pro+) ────────
   if (!isPro) {
       const used = getInstallationUsage(installationId);
-      if (used >= FREE_PR_LIMIT) {
-          logger.warn({ owner, repo, used, limit: FREE_PR_LIMIT }, 'Free PR limit reached');
+      if (used >= prLimit) {
+          logger.warn({ owner, repo, used, limit: prLimit, plan: resolvedPlan }, 'PR limit reached');
           await createCheckRun(octokit, owner, repo, headSha, 'completed', 'neutral', {
-              title: `Poly-Glot AI — Free plan limit reached (${used}/${FREE_PR_LIMIT} PRs this month)`,
+              title: `Poly-Glot AI — Free plan limit reached (${used}/${prLimit} PRs this month)`,
               summary: buildUpgradeComment(
-                  `You've used ${used}/${FREE_PR_LIMIT} free PR reviews this month.`,
-                  used, FREE_PR_LIMIT
+                  `You've used ${used}/${prLimit} free PR reviews this month.`,
+                  used, prLimit
               ),
           });
           return;
       }
       // Increment usage
       incrementInstallationUsage(installationId);
-      logger.info({ owner, repo, used: used + 1, limit: FREE_PR_LIMIT }, 'Free PR usage incremented');
+      logger.info({ owner, repo, used: used + 1, limit: prLimit }, 'Free PR usage incremented');
   }
 
   // Resolve API keys: repo-level config → server environment variables
