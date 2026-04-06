@@ -194,6 +194,63 @@ function incrementInstallationUsage(installationId) {
 }
 
 /**
+ * Track a GitHub App PR review against the auth worker (server-side persistent counter).
+ * Uses installation ID as the tracking key since free installs don't have a user token.
+ * Falls back to in-memory only if the server is unreachable.
+ * Returns { allowed, used, limit } — fail CLOSED on quota exceeded.
+ */
+async function trackGithubAppUsage(installationId, owner, repo) {
+    const TRACK_URL = `${AUTH_API}/github-app-track-usage`;
+    const body = JSON.stringify({
+        installationId: String(installationId),
+        owner,
+        repo,
+        month: monthKey(),
+    });
+
+    return new Promise((resolve) => {
+        const req = https.request(TRACK_URL, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    if (res.statusCode === 429) {
+                        // Quota exceeded server-side — fail closed
+                        resolve({ allowed: false, used: json.used, limit: json.limit, month: json.month });
+                        return;
+                    }
+                    // Sync in-memory store with server count
+                    const key = `${installationId}_${monthKey()}`;
+                    if (json.used) usageStore.set(key, json.used);
+                    resolve({ allowed: true, used: json.used, limit: json.limit });
+                } catch {
+                    // Parse error — fall back to in-memory
+                    const count = incrementInstallationUsage(installationId);
+                    resolve({ allowed: count <= FREE_PR_LIMIT, used: count, limit: FREE_PR_LIMIT });
+                }
+            });
+        });
+        req.on('error', () => {
+            // Network error — fail CLOSED: use in-memory count, do not allow if over limit
+            logger.warn({ installationId }, 'Auth server unreachable for GitHub App tracking — using in-memory count (fail-closed)');
+            const count = incrementInstallationUsage(installationId);
+            resolve({ allowed: count <= FREE_PR_LIMIT, used: count, limit: FREE_PR_LIMIT });
+        });
+        req.setTimeout(5000, () => {
+            req.destroy();
+            const count = incrementInstallationUsage(installationId);
+            resolve({ allowed: count <= FREE_PR_LIMIT, used: count, limit: FREE_PR_LIMIT });
+        });
+        req.write(body);
+        req.end();
+    });
+}
+
+/**
  * Validate a license token against the poly-glot.ai auth API.
  * Returns the plan string ('pro'|'team'|'enterprise') or null if invalid/free.
  */
@@ -407,21 +464,20 @@ async function handlePullRequest(payload) {
 
   // ── Gate: monthly PR limit (enforced for free; unlimited for Pro+) ────────
   if (!isPro) {
-      const used = getInstallationUsage(installationId);
-      if (used >= prLimit) {
-          logger.warn({ owner, repo, used, limit: prLimit, plan: resolvedPlan }, 'PR limit reached');
+      // Track server-side (persistent across restarts) — fail closed on quota exceeded
+      const track = await trackGithubAppUsage(installationId, owner, repo);
+      if (!track.allowed) {
+          logger.warn({ owner, repo, used: track.used, limit: track.limit, plan: resolvedPlan }, 'PR limit reached (server-side)');
           await createCheckRun(octokit, owner, repo, headSha, 'completed', 'neutral', {
-              title: `Poly-Glot AI — Free plan limit reached (${used}/${prLimit} PRs this month)`,
+              title: `Poly-Glot AI — Free plan limit reached (${track.used}/${track.limit} PRs this month)`,
               summary: buildUpgradeComment(
-                  `You've used ${used}/${prLimit} free PR reviews this month.`,
-                  used, prLimit
+                  `You've used ${track.used}/${track.limit} free PR reviews this month.`,
+                  track.used, track.limit
               ),
           });
           return;
       }
-      // Increment usage
-      incrementInstallationUsage(installationId);
-      logger.info({ owner, repo, used: used + 1, limit: prLimit }, 'Free PR usage incremented');
+      logger.info({ owner, repo, used: track.used, limit: track.limit }, 'Free PR usage tracked server-side');
   }
 
   // Resolve API keys: repo-level config → server environment variables
