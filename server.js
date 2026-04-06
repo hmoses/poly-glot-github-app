@@ -211,7 +211,11 @@ async function trackGithubAppUsage(installationId, owner, repo) {
     return new Promise((resolve) => {
         const req = https.request(TRACK_URL, {
             method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+            headers: {
+                'Content-Type':   'application/json',
+                'Content-Length': Buffer.byteLength(body),
+                'X-PG-Service':   'poly-glot-github-app',
+            },
         }, (res) => {
             let data = '';
             res.on('data', chunk => { data += chunk; });
@@ -260,7 +264,11 @@ async function validateLicenseToken(token) {
         const body = JSON.stringify({ token });
         const req  = https.request(AUTH_API, {
             method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+            headers: {
+                'Content-Type':   'application/json',
+                'Content-Length': Buffer.byteLength(body),
+                'X-PG-Service':   'poly-glot-github-app',
+            },
         }, (res) => {
             let data = '';
             res.on('data', chunk => { data += chunk; });
