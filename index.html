@@ -1,4 +1,4 @@
-<![CDATA[<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -64,9 +64,11 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent
 
 <div class="container">
 
+<!-- HOW IT WORKS -->
 <div class="section">
 <h2>🚀 How It Works</h2>
 <p>When you open or update a pull request, Poly-Glot AI automatically:</p>
+
 <div class="how-step"><div class="step-num">1</div><div class="step-body"><h3>Scans</h3><p>Changed files for missing documentation</p></div></div>
 <div class="how-step"><div class="step-num">2</div><div class="step-body"><h3>Analyzes</h3><p>Documentation coverage per file</p></div></div>
 <div class="how-step"><div class="step-num">3</div><div class="step-body"><h3>Generates</h3><p>Doc comments using OpenAI or Anthropic</p></div></div>
@@ -74,32 +76,48 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent
 <div class="how-step"><div class="step-num">5</div><div class="step-body"><h3>Reports</h3><p>A Check Run with coverage metrics</p></div></div>
 </div>
 
+<!-- SUPPORTED LANGUAGES -->
 <div class="section">
 <h2>🌐 Supported Languages (12)</h2>
 <table>
 <tr><th>Language</th><th>Doc Format</th><th>Extensions</th></tr>
-<tr><td>JavaScript</td><td>JSDoc</td><td><code class="inline-code">.js .jsx .mjs .cjs</code></td></tr>
-<tr><td>TypeScript</td><td>TSDoc</td><td><code class="inline-code">.ts .tsx</code></td></tr>
-<tr><td>Python</td><td>PyDoc</td><td><code class="inline-code">.py .pyi</code></td></tr>
+<tr><td>JavaScript</td><td>JSDoc</td><td><code class="inline-code">.js</code> <code class="inline-code">.jsx</code> <code class="inline-code">.mjs</code> <code class="inline-code">.cjs</code></td></tr>
+<tr><td>TypeScript</td><td>TSDoc</td><td><code class="inline-code">.ts</code> <code class="inline-code">.tsx</code></td></tr>
+<tr><td>Python</td><td>PyDoc</td><td><code class="inline-code">.py</code> <code class="inline-code">.pyi</code></td></tr>
 <tr><td>Java</td><td>Javadoc</td><td><code class="inline-code">.java</code></td></tr>
-<tr><td>Kotlin</td><td>KDoc</td><td><code class="inline-code">.kt .kts</code></td></tr>
-<tr><td>C</td><td>Doxygen</td><td><code class="inline-code">.c .h</code></td></tr>
-<tr><td>C++</td><td>Doxygen</td><td><code class="inline-code">.cpp .hpp .cc</code></td></tr>
+<tr><td>Kotlin</td><td>KDoc</td><td><code class="inline-code">.kt</code> <code class="inline-code">.kts</code></td></tr>
+<tr><td>C</td><td>Doxygen</td><td><code class="inline-code">.c</code> <code class="inline-code">.h</code></td></tr>
+<tr><td>C++</td><td>Doxygen</td><td><code class="inline-code">.cpp</code> <code class="inline-code">.hpp</code> <code class="inline-code">.cc</code></td></tr>
 <tr><td>C#</td><td>XML Doc</td><td><code class="inline-code">.cs</code></td></tr>
 <tr><td>Go</td><td>GoDoc</td><td><code class="inline-code">.go</code></td></tr>
 <tr><td>Rust</td><td>Rustdoc</td><td><code class="inline-code">.rs</code></td></tr>
 <tr><td>Swift</td><td>Swift Markup</td><td><code class="inline-code">.swift</code></td></tr>
-<tr><td>PHP / Ruby</td><td>PHPDoc / YARD</td><td><code class="inline-code">.php .rb .rake</code></td></tr>
+<tr><td>PHP</td><td>PHPDoc</td><td><code class="inline-code">.php</code></td></tr>
+<tr><td>Ruby</td><td>YARD</td><td><code class="inline-code">.rb</code> <code class="inline-code">.rake</code></td></tr>
 </table>
 </div>
 
+<!-- COMMENT MODES -->
 <div class="section">
 <h2>💬 Comment Modes</h2>
 <div class="grid-3">
-<div class="card mode-card"><div class="mode-icon">📖</div><h3>Doc Mode</h3><p>Standard documentation comments — parameters, return types, exceptions</p></div>
-<div class="card mode-card"><div class="mode-icon">🧠</div><h3>Why Mode</h3><p>Explains the <em>reasoning</em> behind code decisions, trade-offs, and edge cases</p></div>
-<div class="card mode-card"><div class="mode-icon">📖🧠</div><h3>Both Mode</h3><p>Combines doc comments AND why-comments for maximum context</p></div>
+<div class="card mode-card">
+<div class="mode-icon">📖</div>
+<h3>Doc Mode</h3>
+<p>Standard documentation comments — parameters, return types, exceptions</p>
 </div>
+<div class="card mode-card">
+<div class="mode-icon">🧠</div>
+<h3>Why Mode</h3>
+<p>Explains the <em>reasoning</em> behind code decisions, trade-offs, and edge cases</p>
+</div>
+<div class="card mode-card">
+<div class="mode-icon">📖🧠</div>
+<h3>Both Mode</h3>
+<p>Combines doc comments AND why-comments for maximum context</p>
+</div>
+</div>
+
 <h3>Doc Mode Example</h3>
 <pre><code>/**
  * Authenticate a user with email and password.
@@ -109,6 +127,7 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent
  * @throws {AuthenticationError} If credentials are invalid
  */
 async function authenticateUser(email, password) { ... }</code></pre>
+
 <h3>Why Mode Example</h3>
 <pre><code>// Why: Rate-limit auth attempts per IP to prevent credential stuffing.
 // 5 attempts/min was chosen based on OWASP guidelines.
@@ -116,10 +135,14 @@ async function authenticateUser(email, password) { ... }</code></pre>
 if (await isRateLimited(ip, 5, 60)) { ... }</code></pre>
 </div>
 
+<!-- QUICK START -->
 <div class="section">
 <h2>⚡ Quick Start</h2>
+
 <div class="how-step"><div class="step-num">1</div><div class="step-body"><h3>Install from GitHub Marketplace</h3><p>👉 <a href="https://github.com/marketplace/poly-glot-ai">Install Poly-Glot AI</a> on your repositories.</p></div></div>
+
 <div class="how-step"><div class="step-num">2</div><div class="step-body"><h3>Configure (Optional)</h3><p>Add a <code class="inline-code">.polyglot.yml</code> to your repository root:</p></div></div>
+
 <pre><code># AI provider: 'openai' or 'anthropic'
 provider: openai
 
@@ -132,10 +155,10 @@ coverage_threshold: 0.5
 # Maximum files to process per PR
 max_files: 15
 
-# Review style: 'inline' or 'summary'
+# Review style: 'inline' (per-file suggestions) or 'summary' (single comment)
 review_style: inline
 
-# Exclude patterns
+# Include/exclude file patterns
 exclude:
   - "**/*.test.*"
   - "**/*.spec.*"
@@ -143,36 +166,47 @@ exclude:
 
 # Create a GitHub Check Run with coverage analysis
 check_run: true</code></pre>
+
 <div class="how-step"><div class="step-num">3</div><div class="step-body"><h3>Open a Pull Request</h3><p>That's it! Poly-Glot AI will automatically analyze your PR and post documentation suggestions.</p></div></div>
 </div>
 
+<!-- SELF-HOSTING -->
 <div class="section">
 <h2>🏗️ Self-Hosting</h2>
+
 <div class="grid-2">
-<div class="card"><h3>Using Docker</h3>
+<div class="card">
+<h3>Using Docker</h3>
 <pre><code>git clone https://github.com/hmoses/poly-glot-github-app.git
 cd poly-glot-github-app
 cp .env.example .env
-docker-compose up -d</code></pre></div>
-<div class="card"><h3>Using Node.js</h3>
+# Edit .env with your credentials
+docker-compose up -d</code></pre>
+</div>
+<div class="card">
+<h3>Using Node.js</h3>
 <pre><code>git clone https://github.com/hmoses/poly-glot-github-app.git
 cd poly-glot-github-app
 npm install
 cp .env.example .env
-npm start</code></pre></div>
+# Edit .env with your credentials
+npm start</code></pre>
 </div>
+</div>
+
 <h3>Environment Variables</h3>
 <table>
 <tr><th>Variable</th><th>Required</th><th>Description</th></tr>
 <tr><td><code class="inline-code">GITHUB_APP_ID</code></td><td>✅</td><td>Your GitHub App ID</td></tr>
 <tr><td><code class="inline-code">GITHUB_PRIVATE_KEY</code></td><td>✅</td><td>Your GitHub App private key (PEM)</td></tr>
-<tr><td><code class="inline-code">GITHUB_WEBHOOK_SECRET</code></td><td>✅</td><td>Webhook secret for verification</td></tr>
-<tr><td><code class="inline-code">OPENAI_API_KEY</code></td><td>⚡</td><td>OpenAI API key (at least one required)</td></tr>
-<tr><td><code class="inline-code">ANTHROPIC_API_KEY</code></td><td>⚡</td><td>Anthropic API key (at least one required)</td></tr>
+<tr><td><code class="inline-code">GITHUB_WEBHOOK_SECRET</code></td><td>✅</td><td>Webhook secret for signature verification</td></tr>
+<tr><td><code class="inline-code">OPENAI_API_KEY</code></td><td>⚡</td><td>OpenAI API key (at least one AI key required)</td></tr>
+<tr><td><code class="inline-code">ANTHROPIC_API_KEY</code></td><td>⚡</td><td>Anthropic API key (at least one AI key required)</td></tr>
 <tr><td><code class="inline-code">PORT</code></td><td>❌</td><td>Server port (default: 3000)</td></tr>
 </table>
 </div>
 
+<!-- PRIVACY -->
 <div class="section">
 <h2>🔒 Privacy &amp; Security</h2>
 <ul>
@@ -184,6 +218,7 @@ npm start</code></pre></div>
 <p>See <a href="https://github.com/hmoses/poly-glot-github-app/blob/main/PRIVACY.md">PRIVACY.md</a> for the full privacy policy.</p>
 </div>
 
+<!-- ECOSYSTEM -->
 <div class="section">
 <h2>🧩 Ecosystem</h2>
 <table>
@@ -204,4 +239,4 @@ npm start</code></pre></div>
 </div>
 
 </body>
-</html>]]>
+</html>
