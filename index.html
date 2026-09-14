@@ -1,0 +1,207 @@
+<![CDATA[<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poly-Glot AI GitHub App | Autonomous PR Documentation Agent</title>
+<meta name="description" content="Poly-Glot AI automatically reviews pull requests and generates professional documentation comments across 12+ programming languages. Built by Harold Moses II.">
+<meta name="author" content="Harold Moses II">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--text:#1a1a1a;--muted:#5c6470;--accent:#4d65ff;--accent-light:#eef1ff;--border:#e3e6ee;--card:#fafbff;--code-bg:#111827;--green:#16a34a;--shadow:0 2px 14px rgba(77,101,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:16px}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.hero{max-width:900px;margin:0 auto;padding:56px 24px 34px;text-align:center;border-bottom:2px solid var(--accent)}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:2.6px;color:var(--accent);font-weight:800;margin-bottom:10px}
+.hero h1{font-size:38px;font-weight:900;letter-spacing:-1px;margin-bottom:12px;line-height:1.1}
+.hero .subtitle{font-size:16px;color:var(--muted);max-width:700px;margin:0 auto 24px;line-height:1.7}
+.hero-links{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:7px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
+.btn.primary{background:var(--accent);color:#fff}.btn.secondary{border:1px solid var(--border);color:var(--text)}.btn.green{background:var(--green);color:#fff}
+.container{max-width:900px;margin:0 auto;padding:0 24px}
+.section{padding:40px 0 30px;border-bottom:1px solid var(--border)}
+.section:last-of-type{border-bottom:none}
+.section h2{font-size:22px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section h3{font-size:17px;font-weight:700;margin:20px 0 8px}
+.section p,.section li{font-size:15px;color:#303642;line-height:1.7}
+.section ul,.section ol{padding-left:24px;margin:10px 0}
+.section li{margin:6px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin:14px 0;box-shadow:var(--shadow)}
+pre{overflow-x:auto;background:var(--code-bg);color:#f8fafc;border-radius:9px;padding:16px;font-size:13px;line-height:1.55;margin:12px 0}
+code{font-family:'Fira Code',monospace}
+.inline-code{background:#f3f4f6;padding:2px 6px;border-radius:5px;font-size:13px}
+.tag{display:inline-block;background:var(--accent-light);border:1px solid #d0d8ff;color:var(--accent);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;margin:2px}
+.tag.green{background:#dcfce7;border-color:#bbf7d0;color:#166534}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);background:var(--accent-light);font-weight:700}
+.note{background:var(--accent-light);border:1px solid #d7ddff;border-left:4px solid var(--accent);border-radius:8px;padding:14px 16px;margin:18px 0;font-size:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.how-step{display:flex;align-items:flex-start;gap:14px;margin:16px 0}
+.step-num{width:36px;height:36px;min-width:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center}
+.step-body h3{margin:0 0 4px;font-size:16px}.step-body p{margin:0;color:var(--muted);font-size:14px}
+.mode-card{text-align:center;padding:24px}
+.mode-card .mode-icon{font-size:36px;margin-bottom:8px}
+.mode-card h3{font-size:16px;margin-bottom:6px}
+.footer{text-align:center;padding:30px 24px;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
+.footer a{color:var(--accent)}
+@media(max-width:700px){.hero h1{font-size:26px}.grid-2,.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<div class="eyebrow">Autonomous AI Agent</div>
+<h1>🤖 Poly-Glot AI GitHub App</h1>
+<p class="subtitle">Automatically add professional documentation comments to your pull requests. Supports JSDoc, PyDoc, Javadoc, Doxygen, KDoc, GoDoc, Rustdoc, and more across 12 languages.</p>
+<div class="hero-links">
+<a href="https://github.com/marketplace/poly-glot-ai" class="btn green">Install from Marketplace</a>
+<a href="https://github.com/hmoses/poly-glot-github-app" class="btn primary">Source Code</a>
+<a href="https://hmoses.github.io/portfolio.html" class="btn secondary">← Portfolio</a>
+</div>
+</div>
+
+<div class="container">
+
+<div class="section">
+<h2>🚀 How It Works</h2>
+<p>When you open or update a pull request, Poly-Glot AI automatically:</p>
+<div class="how-step"><div class="step-num">1</div><div class="step-body"><h3>Scans</h3><p>Changed files for missing documentation</p></div></div>
+<div class="how-step"><div class="step-num">2</div><div class="step-body"><h3>Analyzes</h3><p>Documentation coverage per file</p></div></div>
+<div class="how-step"><div class="step-num">3</div><div class="step-body"><h3>Generates</h3><p>Doc comments using OpenAI or Anthropic</p></div></div>
+<div class="how-step"><div class="step-num">4</div><div class="step-body"><h3>Posts</h3><p>Inline review suggestions directly on your PR</p></div></div>
+<div class="how-step"><div class="step-num">5</div><div class="step-body"><h3>Reports</h3><p>A Check Run with coverage metrics</p></div></div>
+</div>
+
+<div class="section">
+<h2>🌐 Supported Languages (12)</h2>
+<table>
+<tr><th>Language</th><th>Doc Format</th><th>Extensions</th></tr>
+<tr><td>JavaScript</td><td>JSDoc</td><td><code class="inline-code">.js .jsx .mjs .cjs</code></td></tr>
+<tr><td>TypeScript</td><td>TSDoc</td><td><code class="inline-code">.ts .tsx</code></td></tr>
+<tr><td>Python</td><td>PyDoc</td><td><code class="inline-code">.py .pyi</code></td></tr>
+<tr><td>Java</td><td>Javadoc</td><td><code class="inline-code">.java</code></td></tr>
+<tr><td>Kotlin</td><td>KDoc</td><td><code class="inline-code">.kt .kts</code></td></tr>
+<tr><td>C</td><td>Doxygen</td><td><code class="inline-code">.c .h</code></td></tr>
+<tr><td>C++</td><td>Doxygen</td><td><code class="inline-code">.cpp .hpp .cc</code></td></tr>
+<tr><td>C#</td><td>XML Doc</td><td><code class="inline-code">.cs</code></td></tr>
+<tr><td>Go</td><td>GoDoc</td><td><code class="inline-code">.go</code></td></tr>
+<tr><td>Rust</td><td>Rustdoc</td><td><code class="inline-code">.rs</code></td></tr>
+<tr><td>Swift</td><td>Swift Markup</td><td><code class="inline-code">.swift</code></td></tr>
+<tr><td>PHP / Ruby</td><td>PHPDoc / YARD</td><td><code class="inline-code">.php .rb .rake</code></td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>💬 Comment Modes</h2>
+<div class="grid-3">
+<div class="card mode-card"><div class="mode-icon">📖</div><h3>Doc Mode</h3><p>Standard documentation comments — parameters, return types, exceptions</p></div>
+<div class="card mode-card"><div class="mode-icon">🧠</div><h3>Why Mode</h3><p>Explains the <em>reasoning</em> behind code decisions, trade-offs, and edge cases</p></div>
+<div class="card mode-card"><div class="mode-icon">📖🧠</div><h3>Both Mode</h3><p>Combines doc comments AND why-comments for maximum context</p></div>
+</div>
+<h3>Doc Mode Example</h3>
+<pre><code>/**
+ * Authenticate a user with email and password.
+ * @param {string} email - The user's email address
+ * @param {string} password - The user's password (plaintext, hashed internally)
+ * @returns {Promise&lt;AuthResult&gt;} Authentication result with token and user profile
+ * @throws {AuthenticationError} If credentials are invalid
+ */
+async function authenticateUser(email, password) { ... }</code></pre>
+<h3>Why Mode Example</h3>
+<pre><code>// Why: Rate-limit auth attempts per IP to prevent credential stuffing.
+// 5 attempts/min was chosen based on OWASP guidelines.
+// Uses sliding window instead of fixed to prevent burst attacks at window edges.
+if (await isRateLimited(ip, 5, 60)) { ... }</code></pre>
+</div>
+
+<div class="section">
+<h2>⚡ Quick Start</h2>
+<div class="how-step"><div class="step-num">1</div><div class="step-body"><h3>Install from GitHub Marketplace</h3><p>👉 <a href="https://github.com/marketplace/poly-glot-ai">Install Poly-Glot AI</a> on your repositories.</p></div></div>
+<div class="how-step"><div class="step-num">2</div><div class="step-body"><h3>Configure (Optional)</h3><p>Add a <code class="inline-code">.polyglot.yml</code> to your repository root:</p></div></div>
+<pre><code># AI provider: 'openai' or 'anthropic'
+provider: openai
+
+# Comment mode: 'doc', 'why', or 'both'
+mode: both
+
+# Only suggest docs for files below this coverage threshold (0.0–1.0)
+coverage_threshold: 0.5
+
+# Maximum files to process per PR
+max_files: 15
+
+# Review style: 'inline' or 'summary'
+review_style: inline
+
+# Exclude patterns
+exclude:
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/vendor/**"
+
+# Create a GitHub Check Run with coverage analysis
+check_run: true</code></pre>
+<div class="how-step"><div class="step-num">3</div><div class="step-body"><h3>Open a Pull Request</h3><p>That's it! Poly-Glot AI will automatically analyze your PR and post documentation suggestions.</p></div></div>
+</div>
+
+<div class="section">
+<h2>🏗️ Self-Hosting</h2>
+<div class="grid-2">
+<div class="card"><h3>Using Docker</h3>
+<pre><code>git clone https://github.com/hmoses/poly-glot-github-app.git
+cd poly-glot-github-app
+cp .env.example .env
+docker-compose up -d</code></pre></div>
+<div class="card"><h3>Using Node.js</h3>
+<pre><code>git clone https://github.com/hmoses/poly-glot-github-app.git
+cd poly-glot-github-app
+npm install
+cp .env.example .env
+npm start</code></pre></div>
+</div>
+<h3>Environment Variables</h3>
+<table>
+<tr><th>Variable</th><th>Required</th><th>Description</th></tr>
+<tr><td><code class="inline-code">GITHUB_APP_ID</code></td><td>✅</td><td>Your GitHub App ID</td></tr>
+<tr><td><code class="inline-code">GITHUB_PRIVATE_KEY</code></td><td>✅</td><td>Your GitHub App private key (PEM)</td></tr>
+<tr><td><code class="inline-code">GITHUB_WEBHOOK_SECRET</code></td><td>✅</td><td>Webhook secret for verification</td></tr>
+<tr><td><code class="inline-code">OPENAI_API_KEY</code></td><td>⚡</td><td>OpenAI API key (at least one required)</td></tr>
+<tr><td><code class="inline-code">ANTHROPIC_API_KEY</code></td><td>⚡</td><td>Anthropic API key (at least one required)</td></tr>
+<tr><td><code class="inline-code">PORT</code></td><td>❌</td><td>Server port (default: 3000)</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>🔒 Privacy &amp; Security</h2>
+<ul>
+<li><strong>Your code stays private</strong> — the app reads PR diffs only for analysis</li>
+<li><strong>Your API key</strong> — uses your own OpenAI or Anthropic key</li>
+<li><strong>No data retention</strong> — code is processed in memory, never stored</li>
+<li><strong>Open source</strong> — audit every line of this app</li>
+</ul>
+<p>See <a href="https://github.com/hmoses/poly-glot-github-app/blob/main/PRIVACY.md">PRIVACY.md</a> for the full privacy policy.</p>
+</div>
+
+<div class="section">
+<h2>🧩 Ecosystem</h2>
+<table>
+<tr><th>Platform</th><th>Link</th></tr>
+<tr><td>🌐 Web App</td><td><a href="https://poly-glot.ai">poly-glot.ai</a></td></tr>
+<tr><td>🤖 GitHub App</td><td><a href="https://github.com/marketplace/poly-glot-ai">GitHub Marketplace</a></td></tr>
+<tr><td>📐 Markdown Optimizer</td><td><a href="https://hmoses.github.io/poly-glot-markdown/">poly-glot-markdown</a></td></tr>
+<tr><td>🔌 MCP Server</td><td><a href="https://github.com/hmoses/poly-glot-ai-workspace">poly-glot-ai-workspace</a></td></tr>
+</table>
+</div>
+
+</div>
+
+<div class="footer">
+<p><strong>Harold Moses II</strong> · <a href="mailto:hwmoses2@icloud.com">hwmoses2@icloud.com</a></p>
+<p style="margin-top:6px"><a href="https://hmoses.github.io/portfolio.html">Portfolio</a> · <a href="https://github.com/hmoses">GitHub</a> · <a href="https://linkedin.com/in/harold-moses-ii-78aa3a3b">LinkedIn</a></p>
+<p style="margin-top:8px;font-size:12px;color:#999">MIT License · Built by Harold Moses</p>
+</div>
+
+</body>
+</html>]]>
