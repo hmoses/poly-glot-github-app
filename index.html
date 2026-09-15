@@ -28,88 +28,146 @@ code{background:rgba(125,211,252,0.08);padding:2px 7px;border-radius:4px;font-fa
 .badge-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,0.3)}
 .badge-link{background:rgba(125,211,252,0.1);color:var(--accent);border:1.5px solid rgba(125,211,252,0.3)}
 .badge-link:hover{background:rgba(125,211,252,0.2);transform:translateY(-1px);text-decoration:none}
+.header-desc{color:var(--text-muted);line-height:1.7;font-size:13.5px}
+.header-desc strong{color:var(--text)}
 
-.header-features{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.feature-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:rgba(125,211,252,0.06);border:1px solid rgba(125,211,252,0.15);border-radius:20px;font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap}
+/* ── Feature Grid ── */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.feat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted)}
+.feat-icon{font-size:20px;flex-shrink:0}
+.feat strong{color:var(--text);display:block;margin-bottom:2px}
 
-.overview-text{font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:12px}
-.overview-list{list-style:none;padding:0}
-.overview-list li{padding:4px 0;font-size:13px;color:var(--text-muted)}
-.overview-list li strong{color:var(--text)}
+/* ── Sections ── */
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.section-title{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ══════════════════════════════════════════════════════════
+   DEMO SECTION — Animated PR Review
+   ══════════════════════════════════════════════════════════ */
+.demo-section{background:linear-gradient(180deg,rgba(125,211,252,0.04) 0%,transparent 100%);border:1px solid var(--border);border-radius:14px;padding:32px 28px;margin-bottom:20px}
+.demo-header{text-align:center;margin-bottom:24px}
+.demo-header h2{font-size:22px;color:#fff;margin-bottom:6px}
+.demo-header p{color:var(--text-muted);font-size:13px}
+.demo-controls{display:flex;justify-content:center;gap:12px;margin-bottom:20px}
+.demo-btn{padding:10px 24px;border-radius:8px;border:none;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.demo-btn.primary{background:linear-gradient(135deg,var(--accent),#38bdf8);color:#0f172a;box-shadow:0 3px 15px rgba(125,211,252,0.3)}
+.demo-btn.primary:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(125,211,252,0.4)}
+.demo-btn.primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.demo-btn.secondary{background:rgba(125,211,252,0.1);color:var(--accent);border:1px solid rgba(125,211,252,0.3)}
+
+/* PR file diff panel */
+.pr-diff{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.pr-diff-header{background:var(--bg3);padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);font-size:12px}
+.pr-diff-file{color:var(--accent);font-family:var(--mono);font-weight:600}
+.pr-diff-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700}
+.pr-diff-badge.added{background:rgba(16,185,129,0.15);color:var(--green)}
+.pr-diff-badge.modified{background:rgba(251,191,36,0.15);color:var(--yellow)}
+.pr-diff-body{padding:0;font-family:var(--mono);font-size:12.5px;line-height:1.85;overflow-x:auto}
+.diff-line{padding:1px 16px;white-space:pre;border-left:3px solid transparent;min-height:22px}
+.diff-line.add{background:rgba(16,185,129,0.08);border-left-color:var(--green);color:#6ee7b7}
+.diff-line.remove{background:rgba(239,68,68,0.08);border-left-color:var(--red);color:#fca5a5}
+.diff-line.context{color:var(--text-muted)}
+.diff-line.hunk{color:var(--accent2);background:rgba(167,139,250,0.06);font-style:italic}
+.diff-linenum{color:rgba(255,255,255,0.2);display:inline-block;width:32px;text-align:right;margin-right:12px;user-select:none;font-size:11px}
+
+/* Comment injection animation */
+.pr-comment{background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(125,211,252,0.06));border:1px solid rgba(167,139,250,0.25);border-radius:8px;margin:8px 16px;padding:14px 16px;opacity:0;transform:translateY(10px);transition:all 0.5s cubic-bezier(.22,1,.36,1);font-family:var(--font);font-size:12.5px;line-height:1.7}
+.pr-comment.visible{opacity:1;transform:translateY(0)}
+.pr-comment-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--accent2)}
+.pr-comment-avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:12px}
+.pr-comment-body{color:var(--text);font-size:12.5px}
+.pr-comment-body code{font-size:11.5px}
+.pr-comment-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px}
+.pr-comment-tag.doc{background:rgba(16,185,129,0.15);color:var(--green)}
+.pr-comment-tag.why{background:rgba(167,139,250,0.15);color:var(--accent2)}
+
+/* Stats panel */
+.demo-stats{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.demo-stats.visible{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
+.stat-block{text-align:center;flex:1;min-width:140px}
+.stat-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.stat-value{font-size:36px;font-weight:900;font-family:var(--mono);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
+.stat-bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:8px;overflow:hidden}
+.stat-bar{height:100%;border-radius:3px;transition:width 1.5s cubic-bezier(.22,1,.36,1)}
+.stat-bar.coverage{background:linear-gradient(90deg,var(--green),#34d399)}
+.stat-bar.quality{background:linear-gradient(90deg,var(--accent2),#c4b5fd)}
+.stat-bar.speed{background:linear-gradient(90deg,var(--accent),#38bdf8)}
+
+/* Metric pills */
+.demo-metrics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.demo-metric{background:rgba(125,211,252,0.08);border:1px solid rgba(125,211,252,0.15);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--accent);opacity:0;transform:scale(0.8);transition:all 0.4s cubic-bezier(.22,1,.36,1)}
+.demo-metric.visible{opacity:1;transform:scale(1)}
+
+/* Demo CTA */
+.demo-cta{text-align:center;display:none}
+.demo-cta p{color:var(--text-muted);margin-bottom:10px;font-size:13px}
+.demo-cta .cta-btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--accent),#38bdf8);color:#0f172a;font-weight:800;border-radius:8px;border:none;font-size:14px;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.demo-cta .cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(125,211,252,0.4);text-decoration:none}
+
+/* ── Comment Mode Showcase ── */
+.mode-btns{display:flex;gap:8px;margin-bottom:14px}
+.mode-btn{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer;transition:all .2s;text-align:center}
+.mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(125,211,252,0.06)}
+.mode-panel{display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px}
+.mode-panel.active{display:block}
+.mode-panel h4{color:var(--accent);margin-bottom:8px;font-size:13px}
+.mode-panel pre{font-family:var(--mono);font-size:12px;color:var(--text);line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.mode-panel .comment-line{color:var(--green);opacity:0.85}
+
+/* ── Supported Languages ── */
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
+.lang-item{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;text-align:center;transition:all .2s}
+.lang-item:hover{border-color:var(--accent);background:rgba(125,211,252,0.04)}
+.lang-item span{margin-right:4px}
+
+/* ── Config ── */
+.config-editor{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12.5px;line-height:2}
+.config-key{color:var(--accent)}
+.config-comment{color:var(--text-muted);font-style:italic}
+.config-editable{color:var(--green);cursor:pointer;border-bottom:1px dashed var(--green);transition:all .2s;padding:1px 4px;border-radius:3px}
+.config-editable:hover{background:rgba(16,185,129,0.12)}
+
+/* ── Tabs ── */
+.demo-tabs{display:flex;gap:8px;margin-bottom:14px}
+.demo-tab{padding:8px 16px;border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;background:var(--bg);color:var(--text-muted);font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer;transition:all .2s}
+.demo-tab.active{background:var(--bg3);color:var(--accent);border-color:var(--accent)}
+.host-panel{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:0 8px 8px 8px;padding:16px}
+.host-panel.active{display:block}
+.host-panel pre{font-family:var(--mono);font-size:12px;color:var(--text);line-height:1.8;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
+th{text-align:left;padding:8px 10px;background:var(--bg3);color:var(--accent);border-bottom:1px solid var(--border);font-weight:700}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-muted)}
+h3{color:var(--text);font-size:14px;margin:18px 0 10px}
 
 /* ── How It Works ── */
-.how-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
-.how-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:800;margin-bottom:16px}
-.how-steps{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center}
-.how-step{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;white-space:nowrap}
-.how-step .num{width:28px;height:28px;background:var(--accent);color:#0f1117;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
-.how-step .label{font-size:13px;font-weight:600}
-.how-arrow{color:var(--accent);font-size:18px;padding:0 6px;flex-shrink:0}
-
-/* ── Cards ── */
-.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
-.card-icon{font-size:20px;margin-bottom:6px}
-.card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
-.card p{font-size:12px;color:var(--text-muted);line-height:1.6}
-
-/* ── Section ── */
-.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
-.section-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:800;margin-bottom:16px}
-.section h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:#fff}
-.section p,.section li{font-size:13px;color:var(--text-muted);line-height:1.7}
-.section ul,.section ol{padding-left:20px;margin:8px 0}
-
-/* ── Table ── */
-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
-th{background:var(--bg3);color:var(--accent);text-align:left;padding:10px 12px;font-weight:700;border:1px solid var(--border)}
-td{padding:10px 12px;border:1px solid var(--border);color:var(--text-muted)}
-
-/* ── Code blocks ── */
-pre{overflow-x:auto;background:#111827;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.6;color:#c4b5fd;margin:12px 0}
-
-/* ── Interactive Demo ── */
-.demo-container{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
-.demo-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
-.demo-tab{padding:10px 18px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
-.demo-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.demo-tab:hover{color:var(--text)}
-.demo-panel{display:none}
-.demo-panel.active{display:block}
-.demo-diff{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.demo-diff-pane{background:#111827;border:1px solid var(--border);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12px;line-height:1.6}
-.demo-diff-pane .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px;display:block}
-.label-before{color:var(--red)}
-.label-after{color:var(--green)}
-.line-add{color:#86efac}
-.line-remove{color:#fca5a5;text-decoration:line-through;opacity:.6}
-.line-ctx{color:#64748b}
-
-/* ── Mode selector ── */
-.mode-selector{display:flex;gap:8px;margin-bottom:16px}
-.mode-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--font)}
-.mode-btn.active{background:rgba(125,211,252,0.1);border-color:var(--accent);color:var(--accent)}
-.mode-btn:hover{border-color:var(--accent);color:var(--text)}
-
-/* ── Config editor ── */
-.config-editor{background:#111827;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.8;color:#c4b5fd;position:relative}
-.config-line{display:flex;gap:8px}
-.config-key{color:var(--accent)}
-.config-val{color:var(--green)}
-.config-comment{color:#64748b}
-.config-editable{background:rgba(125,211,252,0.06);border:1px solid rgba(125,211,252,0.2);border-radius:4px;padding:1px 6px;color:var(--green);cursor:pointer;transition:all .2s}
-.config-editable:hover{background:rgba(125,211,252,0.12);border-color:var(--accent)}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.how-step{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.how-num{font-size:28px;font-weight:900;color:var(--accent);opacity:0.3;margin-bottom:6px}
+.how-step h3{font-size:13px;color:#fff;margin:0 0 6px}
+.how-step p{font-size:12px;color:var(--text-muted);line-height:1.6}
+.how-arrow{display:none}
 
 /* ── Footer ── */
-.footer{text-align:center;padding:30px;color:var(--text-muted);font-size:12px}
-.ecosystem{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
-.eco-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text-muted);transition:all .2s}
-.eco-link:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;transform:translateY(-1px)}
+.footer{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;color:var(--text-muted);font-size:12px}
+.how-title{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.ecosystem{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:12px}
+.eco-link{background:rgba(125,211,252,0.06);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;transition:all .2s;color:var(--accent)}
+.eco-link:hover{background:rgba(125,211,252,0.12);transform:translateY(-1px);text-decoration:none}
 
-@media(max-width:700px){.card-grid{grid-template-columns:1fr}.demo-diff{grid-template-columns:1fr}.how-steps{flex-direction:column}.how-arrow{transform:rotate(90deg)}}
+/* ── Responsive ── */
+@media(max-width:640px){
+.header-top{flex-direction:column;align-items:flex-start}
+.features{grid-template-columns:1fr 1fr}
+.how-steps{grid-template-columns:1fr}
+.lang-grid{grid-template-columns:repeat(3,1fr)}
+.mode-btns{flex-direction:column}
+.demo-controls{flex-direction:column;align-items:center}
+}
 </style>
 </head>
 <body>
+
 <div class="container">
 
 <!-- ══ HEADER ══ -->
@@ -117,162 +175,171 @@ pre{overflow-x:auto;background:#111827;border:1px solid var(--border);border-rad
 <div class="header-top">
 <div class="header-brand">
 <img src="https://hmoses.github.io/poly-glot-markdown/parrot-logo.png" alt="Poly-Glot" class="header-parrot">
-<h1>Poly-Glot AI GitHub App</h1>
+<div>
+<h1>Poly-Glot AI — GitHub App</h1>
+<div style="font-size:12px;color:var(--text-muted);margin-top:2px">AI-Powered PR Documentation Bot</div>
+</div>
 </div>
 <div class="header-badges">
-<a href="https://github.com/marketplace/poly-glot-ai" class="badge badge-green">GitHub Marketplace</a>
-<a href="https://poly-glot.ai" class="badge badge-link">🦜 poly-glot.ai</a>
+<span class="badge badge-green">✅ GitHub Marketplace</span>
+<a href="https://github.com/hmoses/poly-glot-github-app" class="badge badge-link">💻 Source Code</a>
+</div>
+</div>
+<p class="header-desc">
+<strong>Poly-Glot AI</strong> automatically adds professional documentation comments to every pull request.
+Supports <strong>12+ languages</strong>, <strong>3 comment modes</strong>, and configurable coverage thresholds.
+Install from the <strong>GitHub Marketplace</strong> or self-host with Docker.
+</p>
+</div>
+
+<!-- ══ FEATURE GRID ══ -->
+<div class="features">
+<div class="feat"><span class="feat-icon">🔍</span><div><strong>Auto-Review</strong>Scans PRs on open</div></div>
+<div class="feat"><span class="feat-icon">🦜</span><div><strong>12+ Languages</strong>JS, Python, Go, Rust…</div></div>
+<div class="feat"><span class="feat-icon">📝</span><div><strong>Doc + Why Modes</strong>What code does & why</div></div>
+<div class="feat"><span class="feat-icon">⚙️</span><div><strong>YAML Config</strong>.polyglot.yml per repo</div></div>
+<div class="feat"><span class="feat-icon">🐳</span><div><strong>Self-Hostable</strong>Docker or Node.js</div></div>
+<div class="feat"><span class="feat-icon">🔐</span><div><strong>Secure</strong>Keys never leave server</div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ANIMATED DEMO — Live PR Review Simulation
+     ══════════════════════════════════════════════════════════ -->
+<div class="demo-section">
+<div class="demo-header">
+<h2>🎬 See It In Action</h2>
+<p>Watch Poly-Glot AI review a real pull request — doc comments appear in real time</p>
+</div>
+
+<div class="demo-controls">
+<button id="playDemoBtn" class="demo-btn primary">▶️ Play Demo</button>
+<button id="resetDemoBtn" class="demo-btn secondary" style="display:none">↻ Reset</button>
+</div>
+
+<!-- PR Diff Panel -->
+<div class="pr-diff">
+<div class="pr-diff-header">
+<span class="pr-diff-badge modified">M</span>
+<span class="pr-diff-file" id="diffFileName">src/auth/session.py</span>
+<span style="color:var(--text-muted);margin-left:auto;font-size:11px" id="diffMeta">+42 −8</span>
+</div>
+<div class="pr-diff-body" id="diffBody">
+<!-- Lines injected by JS -->
 </div>
 </div>
 
-<div class="header-features">
-<span class="feature-badge">🤖 AI-Powered</span>
-<span class="feature-badge">📝 12 Languages</span>
-<span class="feature-badge">💬 3 Comment Modes</span>
-<span class="feature-badge">⚡ Auto PR Review</span>
-<span class="feature-badge">✅ Coverage Metrics</span>
-<span class="feature-badge">🔧 Self-Hostable</span>
+<!-- Stats Panel -->
+<div class="demo-stats" id="demoStats">
+<div class="stat-block">
+<div class="stat-title">Doc Coverage</div>
+<div class="stat-value" id="statCoverage">0%</div>
+<div class="stat-bar-track"><div class="stat-bar coverage" id="barCoverage" style="width:0%"></div></div>
+<div class="stat-sub">functions documented</div>
+</div>
+<div class="stat-block">
+<div class="stat-title">Comment Quality</div>
+<div class="stat-value" id="statQuality">0</div>
+<div class="stat-bar-track"><div class="stat-bar quality" id="barQuality" style="width:0%"></div></div>
+<div class="stat-sub">clarity score</div>
+</div>
+<div class="stat-block">
+<div class="stat-title">Review Time</div>
+<div class="stat-value" id="statTime">0s</div>
+<div class="stat-bar-track"><div class="stat-bar speed" id="barSpeed" style="width:0%"></div></div>
+<div class="stat-sub">avg per file</div>
+</div>
 </div>
 
-<div class="overview-text">Automatically reviews pull requests and generates professional documentation comments across 12+ programming languages.</div>
-<ul class="overview-list">
-<li>🔍 <strong>Scans</strong> — changed files for missing documentation</li>
-<li>📊 <strong>Analyzes</strong> — documentation coverage per file</li>
-<li>🤖 <strong>Generates</strong> — doc comments using OpenAI or Anthropic</li>
-<li>💬 <strong>Posts</strong> — inline review suggestions directly on your PR</li>
-<li>✅ <strong>Reports</strong> — a Check Run with coverage metrics</li>
-</ul>
+<!-- Metric pills -->
+<div class="demo-metrics" id="demoMetrics">
+<div class="demo-metric" id="mDocstrings">📝 Docstrings added</div>
+<div class="demo-metric" id="mParams">🏷️ Params documented</div>
+<div class="demo-metric" id="mReturns">↩️ Returns annotated</div>
+<div class="demo-metric" id="mWhy">💡 Intent explained</div>
+<div class="demo-metric" id="mTypes">🔒 Types inferred</div>
+<div class="demo-metric" id="mEdgeCases">⚠️ Edge cases flagged</div>
+</div>
+
+<!-- CTA -->
+<div class="demo-cta" id="demoCta">
+<p>Ready to add AI documentation to your PRs?</p>
+<a href="https://github.com/marketplace/poly-glot-ai" class="cta-btn" style="display:inline-block;text-decoration:none">Install from Marketplace →</a>
+</div>
 </div>
 
 <!-- ══ HOW IT WORKS ══ -->
-<div class="how-section">
-<div class="how-title">HOW IT WORKS</div>
-<div class="how-steps">
-<div class="how-step"><div class="num">1</div><div class="label">Open PR</div></div>
-<div class="how-arrow">→</div>
-<div class="how-step"><div class="num">2</div><div class="label">Scan Files</div></div>
-<div class="how-arrow">→</div>
-<div class="how-step"><div class="num">3</div><div class="label">AI Generates Docs</div></div>
-<div class="how-arrow">→</div>
-<div class="how-step"><div class="num">4</div><div class="label">Post Suggestions</div></div>
-<div class="how-arrow">→</div>
-<div class="how-step"><div class="num">5</div><div class="label">Coverage Report</div></div>
-</div>
-</div>
-
-<!-- ══ WHAT GETS DOCUMENTED ══ -->
-<div class="card-grid">
-<div class="card"><div class="card-icon">📋</div><h3>Doc Comments</h3><p>JSDoc, PyDoc, Javadoc, Doxygen, KDoc, GoDoc, Rustdoc, Swift Markup, PHPDoc, YARD — native format per language</p></div>
-<div class="card"><div class="card-icon">🧠</div><h3>Why Comments</h3><p>Explains reasoning, trade-offs, edge cases, and design decisions behind the code</p></div>
-<div class="card"><div class="card-icon">📊</div><h3>Coverage Metrics</h3><p>Check Run reports documentation coverage percentage per file and overall PR score</p></div>
-<div class="card"><div class="card-icon">⚡</div><h3>Inline Suggestions</h3><p>Posts directly as GitHub review suggestions — one-click accept to merge docs into your code</p></div>
-<div class="card"><div class="card-icon">🔒</div><h3>Privacy First</h3><p>Code sent only to your chosen AI provider. No storage, no training, no third-party access</p></div>
-<div class="card"><div class="card-icon">🔧</div><h3>Self-Hostable</h3><p>Run on your own infrastructure with Docker or Node.js. Full control over your data</p></div>
-</div>
-
-<!-- ══ INTERACTIVE DEMO ══ -->
-<div class="demo-container">
-<div class="how-title">LIVE DEMO — COMMENT MODES</div>
-
-<div class="mode-selector">
-<button class="mode-btn active" onclick="showMode('doc')">📝 Doc Mode</button>
-<button class="mode-btn" onclick="showMode('why')">🧠 Why Mode</button>
-<button class="mode-btn" onclick="showMode('both')">📝🧠 Both Mode</button>
-</div>
-
-<div id="mode-doc" class="demo-panel active">
-<div class="demo-diff">
-<div class="demo-diff-pane">
-<span class="label label-before">❌ Before — No Documentation</span>
-<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
-  <span class="line-ctx">const key = `rl:${ip}`;</span>
-  <span class="line-ctx">const count = cache.incr(key);</span>
-  <span class="line-ctx">if (count === 1) cache.expire(key, window);</span>
-  <span class="line-ctx">return count <= max;</span>
-}
-</div>
-<div class="demo-diff-pane">
-<span class="label label-after">✅ After — Poly-Glot AI</span>
-<span class="line-add">/**</span>
-<span class="line-add"> * Enforces per-IP rate limiting using a sliding window.</span>
-<span class="line-add"> * @param {string} ip - Client IP address</span>
-<span class="line-add"> * @param {number} max - Maximum requests allowed</span>
-<span class="line-add"> * @param {number} window - Window duration in seconds</span>
-<span class="line-add"> * @returns {boolean} true if request is within limit</span>
-<span class="line-add"> */</span>
-<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
-</div>
-</div>
-</div>
-
-<div id="mode-why" class="demo-panel">
-<div class="demo-diff">
-<div class="demo-diff-pane">
-<span class="label label-before">❌ Before — No Context</span>
-<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
-  <span class="line-ctx">const key = `rl:${ip}`;</span>
-  <span class="line-ctx">const count = cache.incr(key);</span>
-  <span class="line-ctx">if (count === 1) cache.expire(key, window);</span>
-  <span class="line-ctx">return count <= max;</span>
-}
-</div>
-<div class="demo-diff-pane">
-<span class="label label-after">✅ After — Poly-Glot AI</span>
-<span class="line-add">// Why: Rate-limit auth attempts per IP to prevent</span>
-<span class="line-add">// credential stuffing. The sliding window (incr + expire)</span>
-<span class="line-add">// resets automatically, avoiding stale state. Atomic</span>
-<span class="line-add">// incr avoids race conditions under concurrent requests.</span>
-<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
-</div>
-</div>
-</div>
-
-<div id="mode-both" class="demo-panel">
-<div class="demo-diff">
-<div class="demo-diff-pane">
-<span class="label label-before">❌ Before — Nothing</span>
-<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
-  <span class="line-ctx">const key = `rl:${ip}`;</span>
-  <span class="line-ctx">const count = cache.incr(key);</span>
-  <span class="line-ctx">if (count === 1) cache.expire(key, window);</span>
-  <span class="line-ctx">return count <= max;</span>
-}
-</div>
-<div class="demo-diff-pane">
-<span class="label label-after">✅ After — Poly-Glot AI (Both)</span>
-<span class="line-add">// Why: Rate-limit auth attempts per IP to prevent</span>
-<span class="line-add">// credential stuffing. Atomic incr avoids race conditions.</span>
-<span class="line-add">/**</span>
-<span class="line-add"> * Enforces per-IP rate limiting using a sliding window.</span>
-<span class="line-add"> * @param {string} ip - Client IP address</span>
-<span class="line-add"> * @param {number} max - Maximum requests allowed</span>
-<span class="line-add"> * @param {number} window - Window duration in seconds</span>
-<span class="line-add"> * @returns {boolean} true if within limit</span>
-<span class="line-add"> */</span>
-<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
-</div>
-</div>
-</div>
-</div>
-
-<!-- ══ LANGUAGES ══ -->
 <div class="section">
-<div class="section-title">SUPPORTED LANGUAGES (12)</div>
-<table>
-<tr><th>Language</th><th>Doc Format</th><th>Extensions</th></tr>
-<tr><td>JavaScript</td><td>JSDoc</td><td><code>.js</code> <code>.jsx</code> <code>.mjs</code></td></tr>
-<tr><td>TypeScript</td><td>TSDoc</td><td><code>.ts</code> <code>.tsx</code></td></tr>
-<tr><td>Python</td><td>PyDoc</td><td><code>.py</code> <code>.pyi</code></td></tr>
-<tr><td>Java</td><td>Javadoc</td><td><code>.java</code></td></tr>
-<tr><td>Kotlin</td><td>KDoc</td><td><code>.kt</code> <code>.kts</code></td></tr>
-<tr><td>C</td><td>Doxygen</td><td><code>.c</code> <code>.h</code></td></tr>
-<tr><td>C++</td><td>Doxygen</td><td><code>.cpp</code> <code>.hpp</code> <code>.cc</code></td></tr>
-<tr><td>C#</td><td>XML Doc</td><td><code>.cs</code></td></tr>
-<tr><td>Go</td><td>GoDoc</td><td><code>.go</code></td></tr>
-<tr><td>Rust</td><td>Rustdoc</td><td><code>.rs</code></td></tr>
-<tr><td>Swift</td><td>Swift Markup</td><td><code>.swift</code></td></tr>
-<tr><td>PHP / Ruby</td><td>PHPDoc / YARD</td><td><code>.php</code> <code>.rb</code></td></tr>
-</table>
+<div class="section-title">⚡ HOW IT WORKS</div>
+<div class="how-steps">
+<div class="how-step"><div class="how-num">1</div><h3>PR Opened</h3><p>Poly-Glot receives a webhook when a pull request is opened or updated.</p></div>
+<div class="how-step"><div class="how-num">2</div><h3>AI Analysis</h3><p>Each changed file is analyzed by OpenAI or Anthropic. Functions, classes, and logic are parsed.</p></div>
+<div class="how-step"><div class="how-num">3</div><h3>Comments Posted</h3><p>Inline review comments are added with doc comments, intent explanations, and edge-case warnings.</p></div>
+</div>
+</div>
+
+<!-- ══ COMMENT MODES ══ -->
+<div class="section">
+<div class="section-title">💬 COMMENT MODES</div>
+<div class="mode-btns">
+<button class="mode-btn active" onclick="showMode('both')">📝 Both (Default)</button>
+<button class="mode-btn" onclick="showMode('doc')">📖 Doc Only</button>
+<button class="mode-btn" onclick="showMode('why')">💡 Why Only</button>
+</div>
+<div id="mode-both" class="mode-panel active">
+<h4>Both — Documentation + Intent</h4>
+<pre><span class="comment-line">/**
+ * Validates and refreshes an expired user session token.
+ *
+ * @param {string} token - The JWT session token to validate.
+ * @param {Object} opts - Refresh options including grace period.
+ * @returns {Promise&lt;Session&gt;} Refreshed session or throws AuthError.
+ * @throws {AuthError} If token is revoked or user is deactivated.
+ *
+ * 💡 WHY: Sessions expire after 30min of inactivity. This function
+ * handles the "sliding window" pattern — extending active sessions
+ * while forcing re-auth for truly idle users. The grace period
+ * prevents race conditions during concurrent API calls.
+ */</span></pre>
+</div>
+<div id="mode-doc" class="mode-panel">
+<h4>Doc — Clean Documentation Only</h4>
+<pre><span class="comment-line">/**
+ * Validates and refreshes an expired user session token.
+ *
+ * @param {string} token - The JWT session token to validate.
+ * @param {Object} opts - Refresh options including grace period.
+ * @returns {Promise&lt;Session&gt;} Refreshed session or throws AuthError.
+ * @throws {AuthError} If token is revoked or user is deactivated.
+ */</span></pre>
+</div>
+<div id="mode-why" class="mode-panel">
+<h4>Why — Intent + Reasoning Only</h4>
+<pre><span class="comment-line">/**
+ * 💡 WHY: Sessions expire after 30min of inactivity. This function
+ * handles the "sliding window" pattern — extending active sessions
+ * while forcing re-auth for truly idle users. The grace period
+ * prevents race conditions during concurrent API calls.
+ */</span></pre>
+</div>
+</div>
+
+<!-- ══ SUPPORTED LANGUAGES ══ -->
+<div class="section">
+<div class="section-title">🌐 SUPPORTED LANGUAGES</div>
+<div class="lang-grid">
+<div class="lang-item"><span>🟨</span> JavaScript</div>
+<div class="lang-item"><span>🔷</span> TypeScript</div>
+<div class="lang-item"><span>🐍</span> Python</div>
+<div class="lang-item"><span>🔵</span> Go</div>
+<div class="lang-item"><span>🦀</span> Rust</div>
+<div class="lang-item"><span>☕</span> Java</div>
+<div class="lang-item"><span>💎</span> Ruby</div>
+<div class="lang-item"><span>🐘</span> PHP</div>
+<div class="lang-item"><span>🍎</span> Swift</div>
+<div class="lang-item"><span>🎯</span> Kotlin</div>
+<div class="lang-item"><span>💜</span> C#</div>
+<div class="lang-item"><span>⚡</span> C++</div>
+</div>
 </div>
 
 <!-- ══ INTERACTIVE CONFIG ══ -->
@@ -301,20 +368,17 @@ pre{overflow-x:auto;background:#111827;border:1px solid var(--border);border-rad
 <!-- ══ SELF-HOSTING ══ -->
 <div class="section">
 <div class="section-title">🏗️ SELF-HOSTING</div>
-
 <div class="demo-tabs">
 <button class="demo-tab active" onclick="showHost('docker')">🐳 Docker</button>
 <button class="demo-tab" onclick="showHost('node')">📦 Node.js</button>
 </div>
-
-<div id="host-docker" class="demo-panel active">
+<div id="host-docker" class="host-panel active">
 <pre>git clone https://github.com/hmoses/poly-glot-github-app.git
 cd poly-glot-github-app
 cp .env.example .env   # add your keys
 docker-compose up -d</pre>
 </div>
-
-<div id="host-node" class="demo-panel">
+<div id="host-node" class="host-panel">
 <pre>git clone https://github.com/hmoses/poly-glot-github-app.git
 cd poly-glot-github-app
 npm install
@@ -338,7 +402,6 @@ npm start</pre>
 <div class="footer">
 <div class="how-title" style="margin-bottom:14px">POLY-GLOT ECOSYSTEM</div>
 <div class="ecosystem">
-<a href="https://poly-glot.ai" class="eco-link">🦜 Poly-Glot AI</a>
 <a href="https://hmoses.github.io/poly-glot-markdown/" class="eco-link">📝 Markdown Optimizer</a>
 <a href="https://github.com/marketplace/poly-glot-ai" class="eco-link">🏪 GitHub Marketplace</a>
 <a href="https://github.com/hmoses/poly-glot-github-app" class="eco-link">💻 Source Code</a>
@@ -350,26 +413,260 @@ npm start</pre>
 </div><!-- /container -->
 
 <script>
+/* ══════════════════════════════════════════════════════════
+   ANIMATED PR REVIEW DEMO
+   ══════════════════════════════════════════════════════════ */
+(function() {
+    const playBtn   = document.getElementById('playDemoBtn');
+    const resetBtn  = document.getElementById('resetDemoBtn');
+    const diffBody  = document.getElementById('diffBody');
+    const statsEl   = document.getElementById('demoStats');
+    const metricsEl = document.getElementById('demoMetrics');
+    const ctaEl     = document.getElementById('demoCta');
+    let isPlaying   = false;
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // ── Diff lines to render ──
+    const diffLines = [
+        { type:'hunk',    text:'@@ -12,6 +12,42 @@ class SessionManager:' },
+        { type:'context', text:'    def __init__(self, redis_client, secret_key):',   num:'12' },
+        { type:'context', text:'        self.redis = redis_client',                    num:'13' },
+        { type:'context', text:'        self.secret = secret_key',                     num:'14' },
+        { type:'add',     text:'',                                                     num:'' },
+        { type:'add',     text:'    def refresh_session(self, token, grace_period=30):', num:'15', commentAfter:'doc1' },
+        { type:'add',     text:'        decoded = jwt.decode(token, self.secret, algorithms=["HS256"])', num:'16' },
+        { type:'add',     text:'        user = self.redis.hgetall(f"session:{decoded[\'uid\']}")', num:'17' },
+        { type:'add',     text:'        if not user or user.get("revoked"):', num:'18' },
+        { type:'add',     text:'            raise AuthError("Session revoked")', num:'19' },
+        { type:'add',     text:'        if time.time() - float(user["last_active"]) > 1800:', num:'20', commentAfter:'why1' },
+        { type:'add',     text:'            if time.time() - float(user["last_active"]) > 1800 + grace_period:', num:'21' },
+        { type:'add',     text:'                raise AuthError("Session expired")', num:'22' },
+        { type:'add',     text:'        self.redis.hset(f"session:{decoded[\'uid\']}", "last_active", time.time())', num:'23' },
+        { type:'add',     text:'        new_token = jwt.encode({**decoded, "exp": time.time() + 1800}, self.secret)', num:'24' },
+        { type:'add',     text:'        return Session(token=new_token, user=user)', num:'25' },
+        { type:'add',     text:'',                                                     num:'' },
+        { type:'add',     text:'    def revoke_all_sessions(self, user_id):', num:'26', commentAfter:'doc2' },
+        { type:'add',     text:'        keys = self.redis.keys(f"session:{user_id}:*")', num:'27' },
+        { type:'add',     text:'        pipe = self.redis.pipeline()', num:'28' },
+        { type:'add',     text:'        for k in keys:', num:'29' },
+        { type:'add',     text:'            pipe.hset(k, "revoked", "1")', num:'30' },
+        { type:'add',     text:'        pipe.execute()', num:'31' },
+        { type:'context', text:'',                                                     num:'' },
+        { type:'context', text:'    def get_active_count(self):', num:'32' },
+    ];
+
+    // ── Comments to inject ──
+    const comments = {
+        doc1: {
+            tag:'doc', tagLabel:'📝 DOC',
+            body:`<strong>refresh_session</strong>(token, grace_period=30) → Session<br><br>
+Validates a JWT session token and refreshes it if still within the activity window.<br><br>
+<code>@param token</code> — JWT session token string<br>
+<code>@param grace_period</code> — Extra seconds beyond 30min timeout (default: 30)<br>
+<code>@returns</code> — <code>Session</code> with new token and user data<br>
+<code>@raises AuthError</code> — If session is revoked or fully expired`
+        },
+        why1: {
+            tag:'why', tagLabel:'💡 WHY',
+            body:`<strong>Sliding window + grace period pattern:</strong> Sessions expire after 30 min of inactivity (1800s), but the <code>grace_period</code> parameter adds a buffer. This prevents race conditions when multiple API calls fire simultaneously — the first call may refresh the token while subsequent calls still carry the old one. Without this grace window, ~3% of concurrent requests would fail with false "expired" errors.`
+        },
+        doc2: {
+            tag:'doc', tagLabel:'📝 DOC',
+            body:`<strong>revoke_all_sessions</strong>(user_id) → None<br><br>
+Bulk-revokes all active sessions for a user using a Redis pipeline. Used during password reset, account deactivation, or security incidents. Pipeline batching ensures O(1) round trips regardless of session count.`
+        }
+    };
+
+    // ── Render a single diff line with typing effect ──
+    function createDiffLine(line) {
+        const el = document.createElement('div');
+        el.className = 'diff-line ' + line.type;
+        const numSpan = `<span class="diff-linenum">${line.num || ''}</span>`;
+        const prefix = line.type === 'add' ? '+' : line.type === 'remove' ? '-' : ' ';
+        el.innerHTML = numSpan + (line.type === 'hunk' ? line.text : prefix + ' ' + line.text);
+        return el;
+    }
+
+    // ── Inject a comment bubble after a diff line ──
+    function createComment(key) {
+        const c = comments[key];
+        const el = document.createElement('div');
+        el.className = 'pr-comment';
+        el.innerHTML = `
+<div class="pr-comment-header">
+<div class="pr-comment-avatar">🦜</div>
+<span>poly-glot-ai[bot]</span>
+<span class="pr-comment-tag ${c.tag}">${c.tagLabel}</span>
+</div>
+<div class="pr-comment-body">${c.body}</div>`;
+        return el;
+    }
+
+    // ── Animate counter ──
+    function animateValue(el, start, end, suffix, duration) {
+        const startTime = performance.now();
+        function update(now) {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const val = Math.round(start + (end - start) * eased);
+            el.textContent = val + suffix;
+            if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+    }
+
+    // ── PLAY ──
+    playBtn.addEventListener('click', async () => {
+        if (isPlaying) return;
+        isPlaying = true;
+        playBtn.disabled = true;
+        playBtn.textContent = '⏳ Analyzing PR…';
+        diffBody.innerHTML = '';
+        statsEl.classList.remove('visible');
+        statsEl.style.display = 'none';
+        ctaEl.style.display = 'none';
+        document.querySelectorAll('.demo-metric').forEach(m => m.classList.remove('visible'));
+
+        // Step 1 — Type diff lines one by one
+        for (let i = 0; i < diffLines.length; i++) {
+            const line = diffLines[i];
+            const lineEl = createDiffLine(line);
+            lineEl.style.opacity = '0';
+            lineEl.style.transform = 'translateX(-8px)';
+            lineEl.style.transition = 'all 0.2s ease';
+            diffBody.appendChild(lineEl);
+
+            // Force reflow then animate in
+            requestAnimationFrame(() => {
+                lineEl.style.opacity = '1';
+                lineEl.style.transform = 'translateX(0)';
+            });
+
+            await sleep(line.type === 'hunk' ? 200 : 60);
+
+            // Inject comment after specific lines
+            if (line.commentAfter) {
+                await sleep(400);
+                playBtn.textContent = '🦜 Adding comments…';
+                const commentEl = createComment(line.commentAfter);
+                diffBody.appendChild(commentEl);
+                await sleep(100);
+                commentEl.classList.add('visible');
+                await sleep(600);
+            }
+        }
+
+        // Step 2 — Show stats
+        await sleep(500);
+        playBtn.textContent = '📊 Calculating scores…';
+        statsEl.style.display = 'flex';
+        statsEl.classList.add('visible');
+
+        await sleep(200);
+        animateValue(document.getElementById('statCoverage'), 0, 94, '%', 1200);
+        document.getElementById('barCoverage').style.width = '94%';
+
+        await sleep(150);
+        animateValue(document.getElementById('statQuality'), 0, 97, '', 1200);
+        document.getElementById('barQuality').style.width = '97%';
+
+        await sleep(150);
+        animateValue(document.getElementById('statTime'), 0, 3, 's', 800);
+        document.getElementById('barSpeed').style.width = '30%';
+
+        // Step 3 — Show metric pills one by one
+        await sleep(600);
+        const pills = ['mDocstrings','mParams','mReturns','mWhy','mTypes','mEdgeCases'];
+        for (const id of pills) {
+            document.getElementById(id).classList.add('visible');
+            await sleep(150);
+        }
+
+        // Step 4 — Done
+        await sleep(500);
+        playBtn.textContent = '✓ Review Complete';
+        playBtn.disabled = false;
+        resetBtn.style.display = 'inline-flex';
+        ctaEl.style.display = 'block';
+        isPlaying = false;
+    });
+
+    // ── RESET ──
+    resetBtn.addEventListener('click', () => {
+        diffBody.innerHTML = '';
+        statsEl.classList.remove('visible');
+        statsEl.style.display = 'none';
+        ctaEl.style.display = 'none';
+        resetBtn.style.display = 'none';
+        playBtn.textContent = '▶️ Play Demo';
+        playBtn.disabled = false;
+        isPlaying = false;
+
+        document.getElementById('statCoverage').textContent = '0%';
+        document.getElementById('statQuality').textContent = '0';
+        document.getElementById('statTime').textContent = '0s';
+        document.getElementById('barCoverage').style.width = '0%';
+        document.getElementById('barQuality').style.width = '0%';
+        document.getElementById('barSpeed').style.width = '0%';
+        document.querySelectorAll('.demo-metric').forEach(m => m.classList.remove('visible'));
+    });
+
+    // ── AUTO-PLAY on load ──
+    // Show the completed state immediately so visitors see the demo
+    function showCompleted() {
+        // Render all diff lines instantly
+        for (const line of diffLines) {
+            diffBody.appendChild(createDiffLine(line));
+            if (line.commentAfter) {
+                const c = createComment(line.commentAfter);
+                c.classList.add('visible');
+                diffBody.appendChild(c);
+            }
+        }
+        // Show stats at final values
+        statsEl.style.display = 'flex';
+        statsEl.classList.add('visible');
+        document.getElementById('statCoverage').textContent = '94%';
+        document.getElementById('statQuality').textContent = '97';
+        document.getElementById('statTime').textContent = '3s';
+        document.getElementById('barCoverage').style.width = '94%';
+        document.getElementById('barQuality').style.width = '97%';
+        document.getElementById('barSpeed').style.width = '30%';
+        // Show all pills
+        document.querySelectorAll('.demo-metric').forEach(m => m.classList.add('visible'));
+        // Show CTA & reset
+        ctaEl.style.display = 'block';
+        playBtn.textContent = '✓ Review Complete';
+        resetBtn.style.display = 'inline-flex';
+    }
+    showCompleted();
+
+})();
+
+/* ── Mode toggle ── */
 function showMode(mode) {
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.demo-panel').forEach(p => { if(p.id && p.id.startsWith('mode-')) p.classList.remove('active'); });
-  document.getElementById('mode-' + mode).classList.add('active');
-  event.target.classList.add('active');
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('mode-' + mode).classList.add('active');
+    event.target.classList.add('active');
 }
 
+/* ── Host toggle ── */
 function showHost(type) {
-  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.demo-panel').forEach(p => { if(p.id && p.id.startsWith('host-')) p.classList.remove('active'); });
-  document.getElementById('host-' + type).classList.add('active');
-  event.target.classList.add('active');
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.host-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('host-' + type).classList.add('active');
+    event.target.classList.add('active');
 }
 
+/* ── Config toggle ── */
 function toggleVal(el, vals) {
-  const idx = vals.indexOf(el.textContent);
-  el.textContent = vals[(idx + 1) % vals.length];
-  el.style.animation = 'none';
-  el.offsetHeight;
-  el.style.animation = '';
+    const idx = vals.indexOf(el.textContent);
+    el.textContent = vals[(idx + 1) % vals.length];
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = '';
 }
 </script>
 </body>
