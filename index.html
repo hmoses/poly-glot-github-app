@@ -3,166 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Poly-Glot AI — GitHub App</title>
-<meta name="description" content="Automatically add professional documentation comments to your pull requests. 12+ languages, 3 comment modes, AI-powered. Built by Harold Moses II.">
+<title>Poly-Glot AI — Code Commenter</title>
+<meta name="description" content="Paste your code. Get professional comments. AI-powered code documentation for 35+ languages — JSDoc, PyDoc, Javadoc, RustDoc, and more. Native Mac app powered by OpenAI, Anthropic, and Google Gemini.">
+<meta name="keywords" content="code documentation, code comments, JSDoc, PyDoc, Javadoc, AI documentation, code commenter, developer tools, macOS app, OpenAI, Anthropic, Gemini">
+<meta name="author" content="Harold Moses II">
 <link rel="icon" href="https://hmoses.github.io/poly-glot-markdown/parrot-logo.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:rgba(125,211,252,0.12);--accent:#7dd3fc;--accent2:#a78bfa;--green:#10b981;--text:#e2e8f0;--text-muted:#8892a4;--radius:10px;--font:'Inter',sans-serif;--mono:'Fira Code',monospace;--red:#ef4444;--yellow:#fbbf24}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;
+  --border:rgba(125,211,252,0.12);
+  --accent:#7dd3fc;--accent2:#a78bfa;
+  --green:#10b981;--red:#ef4444;--yellow:#fbbf24;
+  --text:#e2e8f0;--text-muted:#8892a4;
+  --radius:12px;
+  --font:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;overflow-x:hidden}
 a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 code{background:rgba(125,211,252,0.08);padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--accent)}
 
 .container{max-width:960px;margin:0 auto;padding:24px}
 
-/* ── Header ── */
-.header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:20px}
-.header-top{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:14px}
-.header-brand{display:flex;align-items:center;gap:12px}
-.header-parrot{height:52px;width:auto;filter:drop-shadow(0 2px 10px rgba(0,0,0,0.6));transition:transform .3s}
-.header-parrot:hover{transform:scale(1.1)}
-.header h1{font-size:26px;color:#fff;line-height:1.15}
-.header-badges{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.badge{display:inline-flex;align-items:center;padding:6px 14px;font-size:12px;font-weight:700;border-radius:20px;text-decoration:none;transition:all .2s}
-.badge-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,0.3)}
+/* ── Hero ── */
+.hero{text-align:center;padding:60px 24px 48px;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(circle,rgba(125,211,252,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-brand{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:20px}
+.hero-parrot{height:64px;width:auto;filter:drop-shadow(0 4px 20px rgba(0,0,0,0.5));animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.hero h1{font-size:32px;font-weight:900;color:#fff;letter-spacing:-0.5px}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-tagline{font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
+.hero-sub{font-size:15px;color:var(--text-muted);max-width:620px;margin:0 auto 28px;line-height:1.7}
+.hero-sub strong{color:var(--text)}
+.hero-badges{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.badge{display:inline-flex;align-items:center;padding:8px 18px;font-size:13px;font-weight:700;border-radius:24px;text-decoration:none;transition:all .2s}
+.badge-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 2px 12px rgba(16,185,129,0.3)}
+.badge-green:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(16,185,129,0.4);text-decoration:none}
 .badge-link{background:rgba(125,211,252,0.1);color:var(--accent);border:1.5px solid rgba(125,211,252,0.3)}
 .badge-link:hover{background:rgba(125,211,252,0.2);transform:translateY(-1px);text-decoration:none}
-.header-desc{color:var(--text-muted);line-height:1.7;font-size:13.5px}
-.header-desc strong{color:var(--text)}
+
+/* ── Language Strip ── */
+.lang-strip{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:700px;margin:0 auto 36px}
+.lang-pill{background:rgba(125,211,252,0.06);border:1px solid rgba(125,211,252,0.15);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--accent);transition:all .2s}
+.lang-pill:hover{background:rgba(125,211,252,0.12);transform:translateY(-1px)}
 
 /* ── Feature Grid ── */
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:20px}
-.feat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted)}
-.feat-icon{font-size:20px;flex-shrink:0}
-.feat strong{color:var(--text);display:block;margin-bottom:2px}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:28px}
+.feat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;align-items:flex-start;gap:12px;transition:border-color .2s}
+.feat:hover{border-color:rgba(125,211,252,0.3)}
+.feat-icon{font-size:24px;flex-shrink:0;line-height:1}
+.feat strong{color:#fff;display:block;margin-bottom:2px;font-size:13px}
+.feat-text{font-size:12.5px;color:var(--text-muted);line-height:1.5}
 
 /* ── Sections ── */
-.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
-.section-title{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:20px}
+.section-title{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border)}
 
-/* ══════════════════════════════════════════════════════════
-   DEMO SECTION — Animated PR Review
-   ══════════════════════════════════════════════════════════ */
-.demo-section{background:linear-gradient(180deg,rgba(125,211,252,0.04) 0%,transparent 100%);border:1px solid var(--border);border-radius:14px;padding:32px 28px;margin-bottom:20px}
-.demo-header{text-align:center;margin-bottom:24px}
+/* ── Code Demo ── */
+.demo-section{background:linear-gradient(180deg,rgba(125,211,252,0.04) 0%,transparent 100%);border:1px solid var(--border);border-radius:14px;padding:36px 28px;margin-bottom:24px}
+.demo-header{text-align:center;margin-bottom:28px}
 .demo-header h2{font-size:22px;color:#fff;margin-bottom:6px}
 .demo-header p{color:var(--text-muted);font-size:13px}
-.demo-controls{display:flex;justify-content:center;gap:12px;margin-bottom:20px}
-.demo-btn{padding:10px 24px;border-radius:8px;border:none;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
-.demo-btn.primary{background:linear-gradient(135deg,var(--accent),#38bdf8);color:#0f172a;box-shadow:0 3px 15px rgba(125,211,252,0.3)}
-.demo-btn.primary:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(125,211,252,0.4)}
-.demo-btn.primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.demo-btn.secondary{background:rgba(125,211,252,0.1);color:var(--accent);border:1px solid rgba(125,211,252,0.3)}
 
-/* PR file diff panel */
-.pr-diff{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
-.pr-diff-header{background:var(--bg3);padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);font-size:12px}
-.pr-diff-file{color:var(--accent);font-family:var(--mono);font-weight:600}
-.pr-diff-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700}
-.pr-diff-badge.added{background:rgba(16,185,129,0.15);color:var(--green)}
-.pr-diff-badge.modified{background:rgba(251,191,36,0.15);color:var(--yellow)}
-.pr-diff-body{padding:0;font-family:var(--mono);font-size:12.5px;line-height:1.85;overflow-x:auto}
-.diff-line{padding:1px 16px;white-space:pre;border-left:3px solid transparent;min-height:22px}
-.diff-line.add{background:rgba(16,185,129,0.08);border-left-color:var(--green);color:#6ee7b7}
-.diff-line.remove{background:rgba(239,68,68,0.08);border-left-color:var(--red);color:#fca5a5}
-.diff-line.context{color:var(--text-muted)}
-.diff-line.hunk{color:var(--accent2);background:rgba(167,139,250,0.06);font-style:italic}
-.diff-linenum{color:rgba(255,255,255,0.2);display:inline-block;width:32px;text-align:right;margin-right:12px;user-select:none;font-size:11px}
+/* Code editor */
+.code-editor{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.code-header{background:var(--bg3);padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);font-size:12px}
+.code-dots{display:flex;gap:6px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.code-dot.red{background:#ef4444}.code-dot.yellow{background:#fbbf24}.code-dot.green{background:#10b981}
+.code-file{color:var(--accent);font-family:var(--mono);font-weight:600;margin-left:8px;font-size:12px}
+.code-lang-badge{margin-left:auto;font-size:10px;padding:2px 10px;border-radius:10px;font-weight:700;background:rgba(16,185,129,0.15);color:var(--green)}
+.code-body{padding:0;font-family:var(--mono);font-size:12.5px;line-height:1.9;overflow-x:auto}
+.code-line{padding:1px 16px;white-space:pre;min-height:22px}
+.code-line.comment{color:#6ee7b7;background:rgba(16,185,129,0.04)}
+.code-line.code-text{color:var(--text-muted)}
+.code-line .linenum{color:rgba(255,255,255,0.15);display:inline-block;width:28px;text-align:right;margin-right:14px;user-select:none;font-size:11px}
 
-/* Comment injection animation */
-.pr-comment{background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(125,211,252,0.06));border:1px solid rgba(167,139,250,0.25);border-radius:8px;margin:8px 16px;padding:14px 16px;opacity:0;transform:translateY(10px);transition:all 0.5s cubic-bezier(.22,1,.36,1);font-family:var(--font);font-size:12.5px;line-height:1.7}
-.pr-comment.visible{opacity:1;transform:translateY(0)}
-.pr-comment-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--accent2)}
-.pr-comment-avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:12px}
-.pr-comment-body{color:var(--text);font-size:12.5px}
-.pr-comment-body code{font-size:11.5px}
-.pr-comment-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px}
-.pr-comment-tag.doc{background:rgba(16,185,129,0.15);color:var(--green)}
-.pr-comment-tag.why{background:rgba(167,139,250,0.15);color:var(--accent2)}
+/* Doc comment highlight */
+.doc-comment{background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(125,211,252,0.06));border:1px solid rgba(167,139,250,0.25);border-radius:8px;margin:10px 16px;padding:16px 18px;font-family:var(--font);font-size:13px;line-height:1.7}
+.doc-comment-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:11px;font-weight:700;color:var(--accent2)}
+.doc-comment-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:13px}
+.doc-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px}
+.doc-tag.doc{background:rgba(16,185,129,0.15);color:var(--green)}
+.doc-tag.why{background:rgba(167,139,250,0.15);color:var(--accent2)}
+.doc-param{color:var(--accent);font-family:var(--mono);font-size:12px}
+.doc-type{color:var(--green);font-family:var(--mono);font-size:12px}
 
-/* Stats panel */
-.demo-stats{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
-.demo-stats.visible{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
-.stat-block{text-align:center;flex:1;min-width:140px}
-.stat-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
-.stat-value{font-size:36px;font-weight:900;font-family:var(--mono);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
-.stat-bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:8px;overflow:hidden}
-.stat-bar{height:100%;border-radius:3px;transition:width 1.5s cubic-bezier(.22,1,.36,1)}
-.stat-bar.coverage{background:linear-gradient(90deg,var(--green),#34d399)}
-.stat-bar.quality{background:linear-gradient(90deg,var(--accent2),#c4b5fd)}
-.stat-bar.speed{background:linear-gradient(90deg,var(--accent),#38bdf8)}
+/* ── Screenshot Gallery ── */
+.screenshots{margin-bottom:24px}
+.screenshots h2{text-align:center;font-size:20px;color:#fff;margin-bottom:20px}
+.screenshot-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.screenshot-grid img{width:100%;border-radius:10px;border:1px solid var(--border);transition:transform .2s}
+.screenshot-grid img:hover{transform:scale(1.02)}
+.screenshot-grid .full-width{grid-column:1/-1}
 
-/* Metric pills */
-.demo-metrics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
-.demo-metric{background:rgba(125,211,252,0.08);border:1px solid rgba(125,211,252,0.15);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--accent);opacity:0;transform:scale(0.8);transition:all 0.4s cubic-bezier(.22,1,.36,1)}
-.demo-metric.visible{opacity:1;transform:scale(1)}
+/* ── Pricing ── */
+.pricing{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.price-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:center;transition:border-color .2s,transform .2s}
+.price-card:hover{border-color:rgba(125,211,252,0.3);transform:translateY(-2px)}
+.price-card.pro{border-color:rgba(167,139,250,0.4);background:linear-gradient(180deg,rgba(167,139,250,0.06) 0%,var(--bg2) 100%)}
+.price-name{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.price-card .price-name{color:var(--accent)}
+.price-card.pro .price-name{color:var(--accent2)}
+.price-amount{font-size:36px;font-weight:900;font-family:var(--mono);margin-bottom:4px}
+.price-card .price-amount{color:#fff}
+.price-card.pro .price-amount{background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.price-period{font-size:12px;color:var(--text-muted);margin-bottom:16px}
+.price-features{list-style:none;text-align:left;font-size:13px}
+.price-features li{padding:5px 0;color:var(--text-muted);display:flex;align-items:flex-start;gap:8px}
+.price-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.price-card.pro .price-features li::before{color:var(--accent2)}
 
-/* Demo CTA */
-.demo-cta{text-align:center;display:none}
-.demo-cta p{color:var(--text-muted);margin-bottom:10px;font-size:13px}
-.demo-cta .cta-btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--accent),#38bdf8);color:#0f172a;font-weight:800;border-radius:8px;border:none;font-size:14px;cursor:pointer;transition:all .2s;font-family:var(--font)}
-.demo-cta .cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(125,211,252,0.4);text-decoration:none}
-
-/* ── Comment Mode Showcase ── */
-.mode-btns{display:flex;gap:8px;margin-bottom:14px}
-.mode-btn{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer;transition:all .2s;text-align:center}
-.mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(125,211,252,0.06)}
-.mode-panel{display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px}
-.mode-panel.active{display:block}
-.mode-panel h4{color:var(--accent);margin-bottom:8px;font-size:13px}
-.mode-panel pre{font-family:var(--mono);font-size:12px;color:var(--text);line-height:1.8;white-space:pre-wrap;word-break:break-word}
-.mode-panel .comment-line{color:var(--green);opacity:0.85}
-
-/* ── Supported Languages ── */
-.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
-.lang-item{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;text-align:center;transition:all .2s}
-.lang-item:hover{border-color:var(--accent);background:rgba(125,211,252,0.04)}
-.lang-item span{margin-right:4px}
-
-/* ── Config ── */
-.config-editor{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12.5px;line-height:2}
-.config-key{color:var(--accent)}
-.config-comment{color:var(--text-muted);font-style:italic}
-.config-editable{color:var(--green);cursor:pointer;border-bottom:1px dashed var(--green);transition:all .2s;padding:1px 4px;border-radius:3px}
-.config-editable:hover{background:rgba(16,185,129,0.12)}
-
-/* ── Tabs ── */
-.demo-tabs{display:flex;gap:8px;margin-bottom:14px}
-.demo-tab{padding:8px 16px;border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;background:var(--bg);color:var(--text-muted);font-family:var(--font);font-weight:600;font-size:12px;cursor:pointer;transition:all .2s}
-.demo-tab.active{background:var(--bg3);color:var(--accent);border-color:var(--accent)}
-.host-panel{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:0 8px 8px 8px;padding:16px}
-.host-panel.active{display:block}
-.host-panel pre{font-family:var(--mono);font-size:12px;color:var(--text);line-height:1.8;white-space:pre-wrap}
-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
-th{text-align:left;padding:8px 10px;background:var(--bg3);color:var(--accent);border-bottom:1px solid var(--border);font-weight:700}
-td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-muted)}
-h3{color:var(--text);font-size:14px;margin:18px 0 10px}
-
-/* ── How It Works ── */
-.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-.how-step{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
-.how-num{font-size:28px;font-weight:900;color:var(--accent);opacity:0.3;margin-bottom:6px}
-.how-step h3{font-size:13px;color:#fff;margin:0 0 6px}
-.how-step p{font-size:12px;color:var(--text-muted);line-height:1.6}
-.how-arrow{display:none}
+/* ── Native Mac Features ── */
+.mac-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-bottom:24px}
+.mac-feat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;gap:12px;font-size:13px}
+.mac-feat-icon{font-size:22px;flex-shrink:0}
+.mac-feat strong{color:#fff;display:block;font-size:13px}
+.mac-feat span{color:var(--text-muted);font-size:12px}
 
 /* ── Footer ── */
-.footer{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;color:var(--text-muted);font-size:12px}
-.how-title{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
-.ecosystem{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:12px}
-.eco-link{background:rgba(125,211,252,0.06);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;transition:all .2s;color:var(--accent)}
-.eco-link:hover{background:rgba(125,211,252,0.12);transform:translateY(-1px);text-decoration:none}
+.footer{text-align:center;padding:32px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--text-muted)}
+.footer a{color:var(--accent)}
+.footer-links{display:flex;justify-content:center;gap:16px;margin-top:8px;flex-wrap:wrap}
 
 /* ── Responsive ── */
-@media(max-width:640px){
-.header-top{flex-direction:column;align-items:flex-start}
-.features{grid-template-columns:1fr 1fr}
-.how-steps{grid-template-columns:1fr}
-.lang-grid{grid-template-columns:repeat(3,1fr)}
-.mode-btns{flex-direction:column}
-.demo-controls{flex-direction:column;align-items:center}
+@media(max-width:700px){
+  .hero h1{font-size:24px}
+  .hero-tagline{font-size:18px}
+  .screenshot-grid{grid-template-columns:1fr}
+  .pricing{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -170,503 +142,268 @@ h3{color:var(--text);font-size:14px;margin:18px 0 10px}
 
 <div class="container">
 
-<!-- ══ HEADER ══ -->
-<div class="header">
-<div class="header-top">
-<div class="header-brand">
-<img src="https://hmoses.github.io/poly-glot-markdown/parrot-logo.png" alt="Poly-Glot" class="header-parrot">
-<div>
-<h1>Poly-Glot AI — GitHub App</h1>
-<div style="font-size:12px;color:var(--text-muted);margin-top:2px">AI-Powered PR Documentation Bot</div>
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="hero-brand">
+    <img src="https://hmoses.github.io/poly-glot-markdown/parrot-logo.png" alt="Poly-Glot AI" class="hero-parrot">
+    <h1>Poly-Glot AI — <span>Code Commenter</span></h1>
+  </div>
+  <div class="hero-tagline">Paste Your Code. Get Professional Comments.</div>
+  <p class="hero-sub">
+    AI-powered code documentation for <strong>35+ languages</strong>. Generate JSDoc, PyDoc, Javadoc, RustDoc, GoDoc, and more — powered by <strong>OpenAI</strong>, <strong>Anthropic</strong>, and <strong>Google Gemini</strong> using your own API key.
+  </p>
+  <div class="hero-badges">
+    <a href="https://poly-glot.ai" class="badge badge-green">🦜 Try Free at poly-glot.ai</a>
+    <a href="https://github.com/hmoses/poly-glot-github-app" class="badge badge-link">📦 Source Code</a>
+  </div>
 </div>
-</div>
-<div class="header-badges">
-<a href="https://github.com/hmoses/poly-glot-github-app" class="badge badge-link">💻 Source Code</a>
-</div>
-</div>
-<p class="header-desc">
-<strong>Poly-Glot AI</strong> automatically adds professional documentation comments to every pull request.
-Supports <strong>12+ languages</strong>, <strong>3 comment modes</strong>, and configurable coverage thresholds.
-Self-host with Docker or run directly with Node.js.
-</p>
+
+<!-- ══ LANGUAGE STRIP ══ -->
+<div class="lang-strip">
+  <span class="lang-pill">JavaScript</span>
+  <span class="lang-pill">TypeScript</span>
+  <span class="lang-pill">Python</span>
+  <span class="lang-pill">Swift</span>
+  <span class="lang-pill">Kotlin</span>
+  <span class="lang-pill">Java</span>
+  <span class="lang-pill">C</span>
+  <span class="lang-pill">C++</span>
+  <span class="lang-pill">C#</span>
+  <span class="lang-pill">Go</span>
+  <span class="lang-pill">Rust</span>
+  <span class="lang-pill">Ruby</span>
+  <span class="lang-pill">PHP</span>
+  <span class="lang-pill">HTML</span>
+  <span class="lang-pill">CSS</span>
+  <span class="lang-pill">SQL</span>
+  <span class="lang-pill">Shell</span>
+  <span class="lang-pill">R</span>
+  <span class="lang-pill">Scala</span>
+  <span class="lang-pill">Dart</span>
+  <span class="lang-pill">+15 more</span>
 </div>
 
 <!-- ══ FEATURE GRID ══ -->
 <div class="features">
-<div class="feat"><span class="feat-icon">🔍</span><div><strong>Auto-Review</strong>Scans PRs on open</div></div>
-<div class="feat"><span class="feat-icon">🦜</span><div><strong>12+ Languages</strong>JS, Python, Go, Rust…</div></div>
-<div class="feat"><span class="feat-icon">📝</span><div><strong>Doc + Why Modes</strong>What code does & why</div></div>
-<div class="feat"><span class="feat-icon">⚙️</span><div><strong>YAML Config</strong>.polyglot.yml per repo</div></div>
-<div class="feat"><span class="feat-icon">🐳</span><div><strong>Self-Hostable</strong>Docker or Node.js</div></div>
-<div class="feat"><span class="feat-icon">🔐</span><div><strong>Secure</strong>Keys never leave server</div></div>
+  <div class="feat">
+    <span class="feat-icon">📝</span>
+    <div>
+      <strong>Inline Comments</strong>
+      <div class="feat-text">Generate professional doc comments for any function, class, or module</div>
+    </div>
+  </div>
+  <div class="feat">
+    <span class="feat-icon">🦜</span>
+    <div>
+      <strong>35+ Languages</strong>
+      <div class="feat-text">JS, Python, Swift, Go, Rust, Java, C++, Kotlin, Ruby, PHP, and more</div>
+    </div>
+  </div>
+  <div class="feat">
+    <span class="feat-icon">🤖</span>
+    <div>
+      <strong>3 AI Providers</strong>
+      <div class="feat-text">OpenAI, Anthropic (Claude), and Google Gemini — your key, your choice</div>
+    </div>
+  </div>
+  <div class="feat">
+    <span class="feat-icon">💬</span>
+    <div>
+      <strong>AI Chat Assistant</strong>
+      <div class="feat-text">Ask questions about your code, get explanations and refactoring suggestions</div>
+    </div>
+  </div>
+  <div class="feat">
+    <span class="feat-icon">🔒</span>
+    <div>
+      <strong>Private &amp; Secure</strong>
+      <div class="feat-text">API key stored locally. Your code never touches our servers</div>
+    </div>
+  </div>
+  <div class="feat">
+    <span class="feat-icon">🎙️</span>
+    <div>
+      <strong>Voice Input</strong>
+      <div class="feat-text">On-device dictation using Apple's native Speech framework</div>
+    </div>
+  </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════
-     ANIMATED DEMO — Live PR Review Simulation
-     ══════════════════════════════════════════════════════════ -->
+<!-- ══ CODE DEMO ══ -->
 <div class="demo-section">
-<div class="demo-header">
-<h2>🎬 See It In Action</h2>
-<p>Watch Poly-Glot AI review a real pull request — doc comments appear in real time</p>
+  <div class="demo-header">
+    <h2>🎬 See It In Action</h2>
+    <p>Paste code, pick a language, get professional documentation comments in seconds</p>
+  </div>
+
+  <div class="code-editor">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+      <span class="code-file">auth/session.py</span>
+      <span class="code-lang-badge">Python</span>
+    </div>
+    <div class="code-body">
+      <div class="code-line code-text"><span class="linenum">1</span>class SessionManager:</div>
+      <div class="code-line code-text"><span class="linenum">2</span>    def __init__(self, redis_client, secret_key):</div>
+      <div class="code-line code-text"><span class="linenum">3</span>        self.redis = redis_client</div>
+      <div class="code-line code-text"><span class="linenum">4</span>        self.secret = secret_key</div>
+      <div class="code-line code-text"><span class="linenum">5</span></div>
+      <div class="code-line code-text"><span class="linenum">6</span>    def refresh_session(self, token, grace_period=30):</div>
+      <div class="code-line code-text"><span class="linenum">7</span>        payload = jwt.decode(token, self.secret)</div>
+      <div class="code-line code-text"><span class="linenum">8</span>        if payload['exp'] - time.time() > grace_period:</div>
+      <div class="code-line code-text"><span class="linenum">9</span>            return Session(token=token, user=payload)</div>
+      <div class="code-line code-text"><span class="linenum">10</span>        new_token = jwt.encode({**payload, 'exp': time.time() + 1800})</div>
+      <div class="code-line code-text"><span class="linenum">11</span>        self.redis.setex(f"sess:{payload['uid']}", 1800, new_token)</div>
+      <div class="code-line code-text"><span class="linenum">12</span>        return Session(token=new_token, user=payload)</div>
+    </div>
+
+    <!-- Generated doc comment -->
+    <div class="doc-comment">
+      <div class="doc-comment-header">
+        <div class="doc-comment-avatar">🦜</div>
+        poly-glot-ai
+        <span class="doc-tag doc">📄 DOC</span>
+      </div>
+      <div>
+        <code>refresh_session(token, grace_period=30)</code> → <code>Session</code>
+        <p style="margin:8px 0;color:var(--text)">Validates a JWT session token and refreshes it if still within the activity window.</p>
+        <div style="margin-top:8px">
+          <div><span class="doc-param">@param</span> <span class="doc-type">token</span> — JWT session token string</div>
+          <div><span class="doc-param">@param</span> <span class="doc-type">grace_period</span> — Extra seconds beyond 30min timeout (default: 30)</div>
+          <div><span class="doc-param">@returns</span> <span class="doc-type">Session</span> — with new token and user data</div>
+          <div><span class="doc-param">@raises</span> <span class="doc-type">AuthError</span> — if session is revoked or fully expired</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why comment -->
+    <div class="doc-comment" style="border-color:rgba(167,139,250,0.25)">
+      <div class="doc-comment-header">
+        <div class="doc-comment-avatar">🦜</div>
+        poly-glot-ai
+        <span class="doc-tag why">💡 WHY</span>
+      </div>
+      <div style="color:var(--text)">
+        The grace period prevents unnecessary token regeneration when a session is still active. Without it, every request near expiry would trigger a Redis write and new JWT encode — adding latency and Redis load during peak traffic.
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="demo-controls">
-<button id="playDemoBtn" class="demo-btn primary">▶️ Play Demo</button>
-<button id="resetDemoBtn" class="demo-btn secondary" style="display:none">↻ Reset</button>
+<!-- ══ APP SCREENSHOTS ══ -->
+<div class="screenshots">
+  <h2>📱 App Screenshots</h2>
+  <div class="screenshot-grid">
+    <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/ba/48/e0/ba48e014-7bcc-4c12-cf1b-44a123efe2bc/sc1_hero_1440x900.png/1440x900bb.png" alt="Poly-Glot Code Commenter — Hero" loading="lazy">
+    <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/71/0e/d0/710ed0fa-f9ff-25ff-03c8-2ab6ad6a5920/sc2_editor_1440x900.png/1440x900bb.png" alt="Code Editor with Generated Comments" loading="lazy">
+    <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/bf/66/5a/bf665a90-3c2c-b05e-1c0a-5c49f3f4bafe/sc3_chat_1440x900.png/1440x900bb.png" alt="AI Chat Assistant" loading="lazy">
+    <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/97/6a/41/976a415b-457a-cd8f-257d-2f68e327a85e/sc4_pricing_1440x900.png/1440x900bb.png" alt="Pricing — Free and Pro Plans" loading="lazy">
+  </div>
 </div>
 
-<!-- PR Diff Panel -->
-<div class="pr-diff">
-<div class="pr-diff-header">
-<span class="pr-diff-badge modified">M</span>
-<span class="pr-diff-file" id="diffFileName">src/auth/session.py</span>
-<span style="color:var(--text-muted);margin-left:auto;font-size:11px" id="diffMeta">+42 −8</span>
-</div>
-<div class="pr-diff-body" id="diffBody">
-<!-- Lines injected by JS -->
-</div>
-</div>
-
-<!-- Stats Panel -->
-<div class="demo-stats" id="demoStats">
-<div class="stat-block">
-<div class="stat-title">Doc Coverage</div>
-<div class="stat-value" id="statCoverage">0%</div>
-<div class="stat-bar-track"><div class="stat-bar coverage" id="barCoverage" style="width:0%"></div></div>
-<div class="stat-sub">functions documented</div>
-</div>
-<div class="stat-block">
-<div class="stat-title">Comment Quality</div>
-<div class="stat-value" id="statQuality">0</div>
-<div class="stat-bar-track"><div class="stat-bar quality" id="barQuality" style="width:0%"></div></div>
-<div class="stat-sub">clarity score</div>
-</div>
-<div class="stat-block">
-<div class="stat-title">Review Time</div>
-<div class="stat-value" id="statTime">0s</div>
-<div class="stat-bar-track"><div class="stat-bar speed" id="barSpeed" style="width:0%"></div></div>
-<div class="stat-sub">avg per file</div>
-</div>
+<!-- ══ PRICING ══ -->
+<div class="section">
+  <div class="section-title">💰 Pricing</div>
+  <div class="pricing">
+    <div class="price-card">
+      <div class="price-name">Free</div>
+      <div class="price-amount">$0</div>
+      <div class="price-period">forever</div>
+      <ul class="price-features">
+        <li>Unlimited code documentation</li>
+        <li>OpenAI, Anthropic &amp; Gemini support</li>
+        <li>35+ programming languages</li>
+        <li>Inline comment generation</li>
+        <li>Function-level documentation</li>
+        <li>On-device voice input</li>
+      </ul>
+    </div>
+    <div class="price-card pro">
+      <div class="price-name">Pro</div>
+      <div class="price-amount">$9.99</div>
+      <div class="price-period">/month · or $79.99/year (save 33%) · 3-day free trial</div>
+      <ul class="price-features">
+        <li>Everything in Free</li>
+        <li>Unlimited AI chat assistant</li>
+        <li>21 professional prompt templates</li>
+        <li>Priority model access</li>
+        <li>All future features included</li>
+      </ul>
+    </div>
+  </div>
 </div>
 
-<!-- Metric pills -->
-<div class="demo-metrics" id="demoMetrics">
-<div class="demo-metric" id="mDocstrings">📝 Docstrings added</div>
-<div class="demo-metric" id="mParams">🏷️ Params documented</div>
-<div class="demo-metric" id="mReturns">↩️ Returns annotated</div>
-<div class="demo-metric" id="mWhy">💡 Intent explained</div>
-<div class="demo-metric" id="mTypes">🔒 Types inferred</div>
-<div class="demo-metric" id="mEdgeCases">⚠️ Edge cases flagged</div>
-</div>
-
-<!-- CTA -->
-<div class="demo-cta" id="demoCta">
-<p>Ready to add AI documentation to your PRs?</p>
-<a href="https://github.com/hmoses/poly-glot-github-app" class="cta-btn" style="display:inline-block;text-decoration:none">View Source Code →</a>
-</div>
+<!-- ══ NATIVE MAC FEATURES ══ -->
+<div class="section">
+  <div class="section-title">🖥️ Native Mac App</div>
+  <div class="mac-features">
+    <div class="mac-feat">
+      <span class="mac-feat-icon">⌘</span>
+      <div><strong>Keyboard Shortcuts</strong><span>⌘R reload · ⌘+/- zoom · ⌘Q quit</span></div>
+    </div>
+    <div class="mac-feat">
+      <span class="mac-feat-icon">📐</span>
+      <div><strong>Persistent Window State</strong><span>Remembers size and position</span></div>
+    </div>
+    <div class="mac-feat">
+      <span class="mac-feat-icon">🖥</span>
+      <div><strong>Full Screen Support</strong><span>Native macOS full screen mode</span></div>
+    </div>
+    <div class="mac-feat">
+      <span class="mac-feat-icon">🎙️</span>
+      <div><strong>Voice Dictation</strong><span>Apple's native on-device Speech framework</span></div>
+    </div>
+    <div class="mac-feat">
+      <span class="mac-feat-icon">🔒</span>
+      <div><strong>No Tracking</strong><span>No analytics, no data collection</span></div>
+    </div>
+    <div class="mac-feat">
+      <span class="mac-feat-icon">🚀</span>
+      <div><strong>Not a Browser Tab</strong><span>Runs as a full native Mac app</span></div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ HOW IT WORKS ══ -->
 <div class="section">
-<div class="section-title">⚡ HOW IT WORKS</div>
-<div class="how-steps">
-<div class="how-step"><div class="how-num">1</div><h3>PR Opened</h3><p>Poly-Glot receives a webhook when a pull request is opened or updated.</p></div>
-<div class="how-step"><div class="how-num">2</div><h3>AI Analysis</h3><p>Each changed file is analyzed by OpenAI or Anthropic. Functions, classes, and logic are parsed.</p></div>
-<div class="how-step"><div class="how-num">3</div><h3>Comments Posted</h3><p>Inline review comments are added with doc comments, intent explanations, and edge-case warnings.</p></div>
-</div>
+  <div class="section-title">⚡ How It Works</div>
+  <ol style="padding-left:20px;font-size:14px;line-height:2;color:var(--text-muted)">
+    <li><strong style="color:var(--text)">Paste your code</strong> — any language, any size</li>
+    <li><strong style="color:var(--text)">Pick your language</strong> — 35+ supported with auto-detection</li>
+    <li><strong style="color:var(--text)">Choose your AI</strong> — OpenAI, Anthropic, or Google Gemini</li>
+    <li><strong style="color:var(--text)">Click Generate</strong> — professional doc comments appear in seconds</li>
+    <li><strong style="color:var(--text)">Copy &amp; paste</strong> — into your codebase, PR, or docs</li>
+  </ol>
 </div>
 
-<!-- ══ COMMENT MODES ══ -->
+<!-- ══ SUPPORTED DOC STYLES ══ -->
 <div class="section">
-<div class="section-title">💬 COMMENT MODES</div>
-<div class="mode-btns">
-<button class="mode-btn active" onclick="showMode('both')">📝 Both (Default)</button>
-<button class="mode-btn" onclick="showMode('doc')">📖 Doc Only</button>
-<button class="mode-btn" onclick="showMode('why')">💡 Why Only</button>
-</div>
-<div id="mode-both" class="mode-panel active">
-<h4>Both — Documentation + Intent</h4>
-<pre><span class="comment-line">/**
- * Validates and refreshes an expired user session token.
- *
- * @param {string} token - The JWT session token to validate.
- * @param {Object} opts - Refresh options including grace period.
- * @returns {Promise&lt;Session&gt;} Refreshed session or throws AuthError.
- * @throws {AuthError} If token is revoked or user is deactivated.
- *
- * 💡 WHY: Sessions expire after 30min of inactivity. This function
- * handles the "sliding window" pattern — extending active sessions
- * while forcing re-auth for truly idle users. The grace period
- * prevents race conditions during concurrent API calls.
- */</span></pre>
-</div>
-<div id="mode-doc" class="mode-panel">
-<h4>Doc — Clean Documentation Only</h4>
-<pre><span class="comment-line">/**
- * Validates and refreshes an expired user session token.
- *
- * @param {string} token - The JWT session token to validate.
- * @param {Object} opts - Refresh options including grace period.
- * @returns {Promise&lt;Session&gt;} Refreshed session or throws AuthError.
- * @throws {AuthError} If token is revoked or user is deactivated.
- */</span></pre>
-</div>
-<div id="mode-why" class="mode-panel">
-<h4>Why — Intent + Reasoning Only</h4>
-<pre><span class="comment-line">/**
- * 💡 WHY: Sessions expire after 30min of inactivity. This function
- * handles the "sliding window" pattern — extending active sessions
- * while forcing re-auth for truly idle users. The grace period
- * prevents race conditions during concurrent API calls.
- */</span></pre>
-</div>
-</div>
-
-<!-- ══ SUPPORTED LANGUAGES ══ -->
-<div class="section">
-<div class="section-title">🌐 SUPPORTED LANGUAGES</div>
-<div class="lang-grid">
-<div class="lang-item"><span>🟨</span> JavaScript</div>
-<div class="lang-item"><span>🔷</span> TypeScript</div>
-<div class="lang-item"><span>🐍</span> Python</div>
-<div class="lang-item"><span>🔵</span> Go</div>
-<div class="lang-item"><span>🦀</span> Rust</div>
-<div class="lang-item"><span>☕</span> Java</div>
-<div class="lang-item"><span>💎</span> Ruby</div>
-<div class="lang-item"><span>🐘</span> PHP</div>
-<div class="lang-item"><span>🍎</span> Swift</div>
-<div class="lang-item"><span>🎯</span> Kotlin</div>
-<div class="lang-item"><span>💜</span> C#</div>
-<div class="lang-item"><span>⚡</span> C++</div>
-</div>
-</div>
-
-<!-- ══ INTERACTIVE CONFIG ══ -->
-<div class="section">
-<div class="section-title">⚙️ CONFIGURATION</div>
-<p style="margin-bottom:12px">Add <code>.polyglot.yml</code> to your repository root:</p>
-<div class="config-editor">
-<div class="config-line"><span class="config-comment"># AI provider</span></div>
-<div class="config-line"><span class="config-key">provider:</span> <span class="config-editable" onclick="toggleVal(this,['openai','anthropic'])" title="Click to toggle">openai</span></div>
-<div class="config-line">&nbsp;</div>
-<div class="config-line"><span class="config-comment"># Comment mode</span></div>
-<div class="config-line"><span class="config-key">mode:</span> <span class="config-editable" onclick="toggleVal(this,['both','doc','why'])" title="Click to toggle">both</span></div>
-<div class="config-line">&nbsp;</div>
-<div class="config-line"><span class="config-comment"># Coverage threshold (0.0–1.0)</span></div>
-<div class="config-line"><span class="config-key">coverage_threshold:</span> <span class="config-editable" onclick="toggleVal(this,['0.5','0.3','0.7','0.9'])" title="Click to toggle">0.5</span></div>
-<div class="config-line">&nbsp;</div>
-<div class="config-line"><span class="config-comment"># Max files per PR</span></div>
-<div class="config-line"><span class="config-key">max_files:</span> <span class="config-editable" onclick="toggleVal(this,['15','10','25','50'])" title="Click to toggle">15</span></div>
-<div class="config-line">&nbsp;</div>
-<div class="config-line"><span class="config-comment"># Review style</span></div>
-<div class="config-line"><span class="config-key">review_style:</span> <span class="config-editable" onclick="toggleVal(this,['inline','summary'])" title="Click to toggle">inline</span></div>
-</div>
-<p style="margin-top:8px;font-size:11px;color:var(--text-muted)">💡 Click values to cycle through options</p>
-</div>
-
-<!-- ══ SELF-HOSTING ══ -->
-<div class="section">
-<div class="section-title">🏗️ SELF-HOSTING</div>
-<div class="demo-tabs">
-<button class="demo-tab active" onclick="showHost('docker')">🐳 Docker</button>
-<button class="demo-tab" onclick="showHost('node')">📦 Node.js</button>
-</div>
-<div id="host-docker" class="host-panel active">
-<pre>git clone https://github.com/hmoses/poly-glot-github-app.git
-cd poly-glot-github-app
-cp .env.example .env   # add your keys
-docker-compose up -d</pre>
-</div>
-<div id="host-node" class="host-panel">
-<pre>git clone https://github.com/hmoses/poly-glot-github-app.git
-cd poly-glot-github-app
-npm install
-cp .env.example .env   # add your keys
-npm start</pre>
-</div>
-
-<h3>Environment Variables</h3>
-<table>
-<tr><th>Variable</th><th>Required</th><th>Description</th></tr>
-<tr><td><code>GITHUB_APP_ID</code></td><td>✅</td><td>Your GitHub App ID</td></tr>
-<tr><td><code>GITHUB_PRIVATE_KEY</code></td><td>✅</td><td>GitHub App private key (PEM)</td></tr>
-<tr><td><code>GITHUB_WEBHOOK_SECRET</code></td><td>✅</td><td>Webhook secret for signature verification</td></tr>
-<tr><td><code>OPENAI_API_KEY</code></td><td>⚡</td><td>OpenAI API key (at least one AI key required)</td></tr>
-<tr><td><code>ANTHROPIC_API_KEY</code></td><td>⚡</td><td>Anthropic API key (at least one AI key required)</td></tr>
-<tr><td><code>PORT</code></td><td>❌</td><td>Server port (default: 3000)</td></tr>
-</table>
-</div>
-
-<!-- ══ ECOSYSTEM ══ -->
-<div class="footer">
-<div class="how-title" style="margin-bottom:14px">POLY-GLOT ECOSYSTEM</div>
-<div class="ecosystem">
-<a href="https://hmoses.github.io/poly-glot-markdown/" class="eco-link">📝 Markdown Optimizer</a>
-
-<a href="https://github.com/hmoses/poly-glot-github-app" class="eco-link">💻 Source Code</a>
-<a href="https://hmoses.github.io/portfolio.html" class="eco-link">📊 Portfolio</a>
-</div>
-<p>Built by Harold Moses II · <a href="https://github.com/hmoses">github.com/hmoses</a></p>
+  <div class="section-title">📚 Documentation Styles</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">JavaScript/TypeScript</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">JSDoc · @param · @returns · @throws</div></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">Python</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">Docstrings · Google/NumPy style · type hints</div></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">Java/Kotlin</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">Javadoc · KDoc · @param · @return</div></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">Swift</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">Swift Doc · - Parameter · - Returns</div></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">Go</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">GoDoc · package-level · function comments</div></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">Rust</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">RustDoc · /// comments · # Examples</div></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">C/C++</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">Doxygen · @brief · @param · @return</div></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px"><strong style="color:var(--accent);font-size:12px">C# / PHP / Ruby</strong><div style="color:var(--text-muted);font-size:12px;margin-top:4px">XML Doc · PHPDoc · YARD · RDoc</div></div>
+  </div>
 </div>
 
 </div><!-- /container -->
 
-<script>
-/* ══════════════════════════════════════════════════════════
-   ANIMATED PR REVIEW DEMO
-   ══════════════════════════════════════════════════════════ */
-(function() {
-    const playBtn   = document.getElementById('playDemoBtn');
-    const resetBtn  = document.getElementById('resetDemoBtn');
-    const diffBody  = document.getElementById('diffBody');
-    const statsEl   = document.getElementById('demoStats');
-    const metricsEl = document.getElementById('demoMetrics');
-    const ctaEl     = document.getElementById('demoCta');
-    let isPlaying   = false;
-
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-    // ── Diff lines to render ──
-    const diffLines = [
-        { type:'hunk',    text:'@@ -12,6 +12,42 @@ class SessionManager:' },
-        { type:'context', text:'    def __init__(self, redis_client, secret_key):',   num:'12' },
-        { type:'context', text:'        self.redis = redis_client',                    num:'13' },
-        { type:'context', text:'        self.secret = secret_key',                     num:'14' },
-        { type:'add',     text:'',                                                     num:'' },
-        { type:'add',     text:'    def refresh_session(self, token, grace_period=30):', num:'15', commentAfter:'doc1' },
-        { type:'add',     text:'        decoded = jwt.decode(token, self.secret, algorithms=["HS256"])', num:'16' },
-        { type:'add',     text:'        user = self.redis.hgetall(f"session:{decoded[\'uid\']}")', num:'17' },
-        { type:'add',     text:'        if not user or user.get("revoked"):', num:'18' },
-        { type:'add',     text:'            raise AuthError("Session revoked")', num:'19' },
-        { type:'add',     text:'        if time.time() - float(user["last_active"]) > 1800:', num:'20', commentAfter:'why1' },
-        { type:'add',     text:'            if time.time() - float(user["last_active"]) > 1800 + grace_period:', num:'21' },
-        { type:'add',     text:'                raise AuthError("Session expired")', num:'22' },
-        { type:'add',     text:'        self.redis.hset(f"session:{decoded[\'uid\']}", "last_active", time.time())', num:'23' },
-        { type:'add',     text:'        new_token = jwt.encode({**decoded, "exp": time.time() + 1800}, self.secret)', num:'24' },
-        { type:'add',     text:'        return Session(token=new_token, user=user)', num:'25' },
-        { type:'add',     text:'',                                                     num:'' },
-        { type:'add',     text:'    def revoke_all_sessions(self, user_id):', num:'26', commentAfter:'doc2' },
-        { type:'add',     text:'        keys = self.redis.keys(f"session:{user_id}:*")', num:'27' },
-        { type:'add',     text:'        pipe = self.redis.pipeline()', num:'28' },
-        { type:'add',     text:'        for k in keys:', num:'29' },
-        { type:'add',     text:'            pipe.hset(k, "revoked", "1")', num:'30' },
-        { type:'add',     text:'        pipe.execute()', num:'31' },
-        { type:'context', text:'',                                                     num:'' },
-        { type:'context', text:'    def get_active_count(self):', num:'32' },
-    ];
-
-    // ── Comments to inject ──
-    const comments = {
-        doc1: {
-            tag:'doc', tagLabel:'📝 DOC',
-            body:`<strong>refresh_session</strong>(token, grace_period=30) → Session<br><br>
-Validates a JWT session token and refreshes it if still within the activity window.<br><br>
-<code>@param token</code> — JWT session token string<br>
-<code>@param grace_period</code> — Extra seconds beyond 30min timeout (default: 30)<br>
-<code>@returns</code> — <code>Session</code> with new token and user data<br>
-<code>@raises AuthError</code> — If session is revoked or fully expired`
-        },
-        why1: {
-            tag:'why', tagLabel:'💡 WHY',
-            body:`<strong>Sliding window + grace period pattern:</strong> Sessions expire after 30 min of inactivity (1800s), but the <code>grace_period</code> parameter adds a buffer. This prevents race conditions when multiple API calls fire simultaneously — the first call may refresh the token while subsequent calls still carry the old one. Without this grace window, ~3% of concurrent requests would fail with false "expired" errors.`
-        },
-        doc2: {
-            tag:'doc', tagLabel:'📝 DOC',
-            body:`<strong>revoke_all_sessions</strong>(user_id) → None<br><br>
-Bulk-revokes all active sessions for a user using a Redis pipeline. Used during password reset, account deactivation, or security incidents. Pipeline batching ensures O(1) round trips regardless of session count.`
-        }
-    };
-
-    // ── Render a single diff line with typing effect ──
-    function createDiffLine(line) {
-        const el = document.createElement('div');
-        el.className = 'diff-line ' + line.type;
-        const numSpan = `<span class="diff-linenum">${line.num || ''}</span>`;
-        const prefix = line.type === 'add' ? '+' : line.type === 'remove' ? '-' : ' ';
-        el.innerHTML = numSpan + (line.type === 'hunk' ? line.text : prefix + ' ' + line.text);
-        return el;
-    }
-
-    // ── Inject a comment bubble after a diff line ──
-    function createComment(key) {
-        const c = comments[key];
-        const el = document.createElement('div');
-        el.className = 'pr-comment';
-        el.innerHTML = `
-<div class="pr-comment-header">
-<div class="pr-comment-avatar">🦜</div>
-<span>poly-glot-ai[bot]</span>
-<span class="pr-comment-tag ${c.tag}">${c.tagLabel}</span>
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+  <p>© 2026 <strong>Harold Moses II</strong> · Built with 🪿 Goose</p>
+  <div class="footer-links">
+    <a href="https://poly-glot.ai">poly-glot.ai</a>
+    <a href="https://github.com/hmoses/poly-glot-github-app">GitHub</a>
+    <a href="https://hmoses.github.io/poly-glot-site/privacy.html">Privacy</a>
+    <a href="https://hmoses.github.io/poly-glot-site/terms.html">Terms</a>
+    <a href="mailto:hello@poly-glot.ai">Contact</a>
+  </div>
 </div>
-<div class="pr-comment-body">${c.body}</div>`;
-        return el;
-    }
 
-    // ── Animate counter ──
-    function animateValue(el, start, end, suffix, duration) {
-        const startTime = performance.now();
-        function update(now) {
-            const progress = Math.min((now - startTime) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const val = Math.round(start + (end - start) * eased);
-            el.textContent = val + suffix;
-            if (progress < 1) requestAnimationFrame(update);
-        }
-        requestAnimationFrame(update);
-    }
-
-    // ── PLAY ──
-    playBtn.addEventListener('click', async () => {
-        if (isPlaying) return;
-        isPlaying = true;
-        playBtn.disabled = true;
-        playBtn.textContent = '⏳ Analyzing PR…';
-        diffBody.innerHTML = '';
-        statsEl.classList.remove('visible');
-        statsEl.style.display = 'none';
-        ctaEl.style.display = 'none';
-        document.querySelectorAll('.demo-metric').forEach(m => m.classList.remove('visible'));
-
-        // Step 1 — Type diff lines one by one
-        for (let i = 0; i < diffLines.length; i++) {
-            const line = diffLines[i];
-            const lineEl = createDiffLine(line);
-            lineEl.style.opacity = '0';
-            lineEl.style.transform = 'translateX(-8px)';
-            lineEl.style.transition = 'all 0.2s ease';
-            diffBody.appendChild(lineEl);
-
-            // Force reflow then animate in
-            requestAnimationFrame(() => {
-                lineEl.style.opacity = '1';
-                lineEl.style.transform = 'translateX(0)';
-            });
-
-            await sleep(line.type === 'hunk' ? 200 : 60);
-
-            // Inject comment after specific lines
-            if (line.commentAfter) {
-                await sleep(400);
-                playBtn.textContent = '🦜 Adding comments…';
-                const commentEl = createComment(line.commentAfter);
-                diffBody.appendChild(commentEl);
-                await sleep(100);
-                commentEl.classList.add('visible');
-                await sleep(600);
-            }
-        }
-
-        // Step 2 — Show stats
-        await sleep(500);
-        playBtn.textContent = '📊 Calculating scores…';
-        statsEl.style.display = 'flex';
-        statsEl.classList.add('visible');
-
-        await sleep(200);
-        animateValue(document.getElementById('statCoverage'), 0, 94, '%', 1200);
-        document.getElementById('barCoverage').style.width = '94%';
-
-        await sleep(150);
-        animateValue(document.getElementById('statQuality'), 0, 97, '', 1200);
-        document.getElementById('barQuality').style.width = '97%';
-
-        await sleep(150);
-        animateValue(document.getElementById('statTime'), 0, 3, 's', 800);
-        document.getElementById('barSpeed').style.width = '30%';
-
-        // Step 3 — Show metric pills one by one
-        await sleep(600);
-        const pills = ['mDocstrings','mParams','mReturns','mWhy','mTypes','mEdgeCases'];
-        for (const id of pills) {
-            document.getElementById(id).classList.add('visible');
-            await sleep(150);
-        }
-
-        // Step 4 — Done
-        await sleep(500);
-        playBtn.textContent = '✓ Review Complete';
-        playBtn.disabled = false;
-        resetBtn.style.display = 'inline-flex';
-        ctaEl.style.display = 'block';
-        isPlaying = false;
-    });
-
-    // ── RESET ──
-    resetBtn.addEventListener('click', () => {
-        diffBody.innerHTML = '';
-        statsEl.classList.remove('visible');
-        statsEl.style.display = 'none';
-        ctaEl.style.display = 'none';
-        resetBtn.style.display = 'none';
-        playBtn.textContent = '▶️ Play Demo';
-        playBtn.disabled = false;
-        isPlaying = false;
-
-        document.getElementById('statCoverage').textContent = '0%';
-        document.getElementById('statQuality').textContent = '0';
-        document.getElementById('statTime').textContent = '0s';
-        document.getElementById('barCoverage').style.width = '0%';
-        document.getElementById('barQuality').style.width = '0%';
-        document.getElementById('barSpeed').style.width = '0%';
-        document.querySelectorAll('.demo-metric').forEach(m => m.classList.remove('visible'));
-    });
-
-    // ── AUTO-PLAY on load ──
-    // Show the completed state immediately so visitors see the demo
-    function showCompleted() {
-        // Render all diff lines instantly
-        for (const line of diffLines) {
-            diffBody.appendChild(createDiffLine(line));
-            if (line.commentAfter) {
-                const c = createComment(line.commentAfter);
-                c.classList.add('visible');
-                diffBody.appendChild(c);
-            }
-        }
-        // Show stats at final values
-        statsEl.style.display = 'flex';
-        statsEl.classList.add('visible');
-        document.getElementById('statCoverage').textContent = '94%';
-        document.getElementById('statQuality').textContent = '97';
-        document.getElementById('statTime').textContent = '3s';
-        document.getElementById('barCoverage').style.width = '94%';
-        document.getElementById('barQuality').style.width = '97%';
-        document.getElementById('barSpeed').style.width = '30%';
-        // Show all pills
-        document.querySelectorAll('.demo-metric').forEach(m => m.classList.add('visible'));
-        // Show CTA & reset
-        ctaEl.style.display = 'block';
-        playBtn.textContent = '✓ Review Complete';
-        resetBtn.style.display = 'inline-flex';
-    }
-    showCompleted();
-
-})();
-
-/* ── Mode toggle ── */
-function showMode(mode) {
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('mode-' + mode).classList.add('active');
-    event.target.classList.add('active');
-}
-
-/* ── Host toggle ── */
-function showHost(type) {
-    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.host-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('host-' + type).classList.add('active');
-    event.target.classList.add('active');
-}
-
-/* ── Config toggle ── */
-function toggleVal(el, vals) {
-    const idx = vals.indexOf(el.textContent);
-    el.textContent = vals[(idx + 1) % vals.length];
-    el.style.animation = 'none';
-    el.offsetHeight;
-    el.style.animation = '';
-}
-</script>
 </body>
 </html>
