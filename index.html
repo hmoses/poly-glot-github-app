@@ -3,240 +3,374 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Poly-Glot AI GitHub App | Autonomous PR Documentation Agent</title>
-<meta name="description" content="Poly-Glot AI automatically reviews pull requests and generates professional documentation comments across 12+ programming languages. Built by Harold Moses II.">
-<meta name="author" content="Harold Moses II">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<title>Poly-Glot AI — GitHub App</title>
+<meta name="description" content="Automatically add professional documentation comments to your pull requests. 12+ languages, 3 comment modes, AI-powered. Built by Harold Moses II.">
+<link rel="icon" href="https://hmoses.github.io/poly-glot-markdown/parrot-logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fff;--text:#1a1a1a;--muted:#5c6470;--accent:#4d65ff;--accent-light:#eef1ff;--border:#e3e6ee;--card:#fafbff;--code-bg:#111827;--green:#16a34a;--shadow:0 2px 14px rgba(77,101,255,.08)}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:16px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:rgba(125,211,252,0.12);--accent:#7dd3fc;--accent2:#a78bfa;--green:#10b981;--text:#e2e8f0;--text-muted:#8892a4;--radius:10px;--font:'Inter',sans-serif;--mono:'Fira Code',monospace;--red:#ef4444;--yellow:#fbbf24}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
 a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
-.hero{max-width:900px;margin:0 auto;padding:56px 24px 34px;text-align:center;border-bottom:2px solid var(--accent)}
-.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:2.6px;color:var(--accent);font-weight:800;margin-bottom:10px}
-.hero h1{font-size:38px;font-weight:900;letter-spacing:-1px;margin-bottom:12px;line-height:1.1}
-.hero .subtitle{font-size:16px;color:var(--muted);max-width:700px;margin:0 auto 24px;line-height:1.7}
-.hero-links{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:7px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s}
-.btn.primary{background:var(--accent);color:#fff}.btn.secondary{border:1px solid var(--border);color:var(--text)}.btn.green{background:var(--green);color:#fff}
-.container{max-width:900px;margin:0 auto;padding:0 24px}
-.section{padding:40px 0 30px;border-bottom:1px solid var(--border)}
-.section:last-of-type{border-bottom:none}
-.section h2{font-size:22px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.section h3{font-size:17px;font-weight:700;margin:20px 0 8px}
-.section p,.section li{font-size:15px;color:#303642;line-height:1.7}
-.section ul,.section ol{padding-left:24px;margin:10px 0}
-.section li{margin:6px 0}
-.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin:14px 0;box-shadow:var(--shadow)}
-pre{overflow-x:auto;background:var(--code-bg);color:#f8fafc;border-radius:9px;padding:16px;font-size:13px;line-height:1.55;margin:12px 0}
-code{font-family:'Fira Code',monospace}
-.inline-code{background:#f3f4f6;padding:2px 6px;border-radius:5px;font-size:13px}
-.tag{display:inline-block;background:var(--accent-light);border:1px solid #d0d8ff;color:var(--accent);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;margin:2px}
-.tag.green{background:#dcfce7;border-color:#bbf7d0;color:#166534}
-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
-th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
-th{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);background:var(--accent-light);font-weight:700}
-.note{background:var(--accent-light);border:1px solid #d7ddff;border-left:4px solid var(--accent);border-radius:8px;padding:14px 16px;margin:18px 0;font-size:14px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.how-step{display:flex;align-items:flex-start;gap:14px;margin:16px 0}
-.step-num{width:36px;height:36px;min-width:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center}
-.step-body h3{margin:0 0 4px;font-size:16px}.step-body p{margin:0;color:var(--muted);font-size:14px}
-.mode-card{text-align:center;padding:24px}
-.mode-card .mode-icon{font-size:36px;margin-bottom:8px}
-.mode-card h3{font-size:16px;margin-bottom:6px}
-.footer{text-align:center;padding:30px 24px;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
-.footer a{color:var(--accent)}
-@media(max-width:700px){.hero h1{font-size:26px}.grid-2,.grid-3{grid-template-columns:1fr}}
+code{background:rgba(125,211,252,0.08);padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--accent)}
+
+.container{max-width:960px;margin:0 auto;padding:24px}
+
+/* ── Header ── */
+.header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:20px}
+.header-top{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:14px}
+.header-brand{display:flex;align-items:center;gap:12px}
+.header-parrot{height:52px;width:auto;filter:drop-shadow(0 2px 10px rgba(0,0,0,0.6));transition:transform .3s}
+.header-parrot:hover{transform:scale(1.1)}
+.header h1{font-size:26px;color:#fff;line-height:1.15}
+.header-badges{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;padding:6px 14px;font-size:12px;font-weight:700;border-radius:20px;text-decoration:none;transition:all .2s}
+.badge-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,0.3)}
+.badge-link{background:rgba(125,211,252,0.1);color:var(--accent);border:1.5px solid rgba(125,211,252,0.3)}
+.badge-link:hover{background:rgba(125,211,252,0.2);transform:translateY(-1px);text-decoration:none}
+
+.header-features{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.feature-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:rgba(125,211,252,0.06);border:1px solid rgba(125,211,252,0.15);border-radius:20px;font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap}
+
+.overview-text{font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:12px}
+.overview-list{list-style:none;padding:0}
+.overview-list li{padding:4px 0;font-size:13px;color:var(--text-muted)}
+.overview-list li strong{color:var(--text)}
+
+/* ── How It Works ── */
+.how-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.how-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:800;margin-bottom:16px}
+.how-steps{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center}
+.how-step{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;white-space:nowrap}
+.how-step .num{width:28px;height:28px;background:var(--accent);color:#0f1117;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.how-step .label{font-size:13px;font-weight:600}
+.how-arrow{color:var(--accent);font-size:18px;padding:0 6px;flex-shrink:0}
+
+/* ── Cards ── */
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card-icon{font-size:20px;margin-bottom:6px}
+.card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.card p{font-size:12px;color:var(--text-muted);line-height:1.6}
+
+/* ── Section ── */
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:800;margin-bottom:16px}
+.section h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:#fff}
+.section p,.section li{font-size:13px;color:var(--text-muted);line-height:1.7}
+.section ul,.section ol{padding-left:20px;margin:8px 0}
+
+/* ── Table ── */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
+th{background:var(--bg3);color:var(--accent);text-align:left;padding:10px 12px;font-weight:700;border:1px solid var(--border)}
+td{padding:10px 12px;border:1px solid var(--border);color:var(--text-muted)}
+
+/* ── Code blocks ── */
+pre{overflow-x:auto;background:#111827;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.6;color:#c4b5fd;margin:12px 0}
+
+/* ── Interactive Demo ── */
+.demo-container{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.demo-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.demo-tab{padding:10px 18px;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
+.demo-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.demo-tab:hover{color:var(--text)}
+.demo-panel{display:none}
+.demo-panel.active{display:block}
+.demo-diff{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.demo-diff-pane{background:#111827;border:1px solid var(--border);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12px;line-height:1.6}
+.demo-diff-pane .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px;display:block}
+.label-before{color:var(--red)}
+.label-after{color:var(--green)}
+.line-add{color:#86efac}
+.line-remove{color:#fca5a5;text-decoration:line-through;opacity:.6}
+.line-ctx{color:#64748b}
+
+/* ── Mode selector ── */
+.mode-selector{display:flex;gap:8px;margin-bottom:16px}
+.mode-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.mode-btn.active{background:rgba(125,211,252,0.1);border-color:var(--accent);color:var(--accent)}
+.mode-btn:hover{border-color:var(--accent);color:var(--text)}
+
+/* ── Config editor ── */
+.config-editor{background:#111827;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.8;color:#c4b5fd;position:relative}
+.config-line{display:flex;gap:8px}
+.config-key{color:var(--accent)}
+.config-val{color:var(--green)}
+.config-comment{color:#64748b}
+.config-editable{background:rgba(125,211,252,0.06);border:1px solid rgba(125,211,252,0.2);border-radius:4px;padding:1px 6px;color:var(--green);cursor:pointer;transition:all .2s}
+.config-editable:hover{background:rgba(125,211,252,0.12);border-color:var(--accent)}
+
+/* ── Footer ── */
+.footer{text-align:center;padding:30px;color:var(--text-muted);font-size:12px}
+.ecosystem{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.eco-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text-muted);transition:all .2s}
+.eco-link:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;transform:translateY(-1px)}
+
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}.demo-diff{grid-template-columns:1fr}.how-steps{flex-direction:column}.how-arrow{transform:rotate(90deg)}}
 </style>
 </head>
 <body>
-
-<div class="hero">
-<div class="eyebrow">Autonomous AI Agent</div>
-<h1>🤖 Poly-Glot AI GitHub App</h1>
-<p class="subtitle">Automatically add professional documentation comments to your pull requests. Supports JSDoc, PyDoc, Javadoc, Doxygen, KDoc, GoDoc, Rustdoc, and more across 12 languages.</p>
-<div class="hero-links">
-<a href="https://github.com/marketplace/poly-glot-ai" class="btn green">Install from Marketplace</a>
-<a href="https://github.com/hmoses/poly-glot-github-app" class="btn primary">Source Code</a>
-<a href="https://hmoses.github.io/portfolio.html" class="btn secondary">← Portfolio</a>
-</div>
-</div>
-
 <div class="container">
 
-<!-- HOW IT WORKS -->
-<div class="section">
-<h2>🚀 How It Works</h2>
-<p>When you open or update a pull request, Poly-Glot AI automatically:</p>
-
-<div class="how-step"><div class="step-num">1</div><div class="step-body"><h3>Scans</h3><p>Changed files for missing documentation</p></div></div>
-<div class="how-step"><div class="step-num">2</div><div class="step-body"><h3>Analyzes</h3><p>Documentation coverage per file</p></div></div>
-<div class="how-step"><div class="step-num">3</div><div class="step-body"><h3>Generates</h3><p>Doc comments using OpenAI or Anthropic</p></div></div>
-<div class="how-step"><div class="step-num">4</div><div class="step-body"><h3>Posts</h3><p>Inline review suggestions directly on your PR</p></div></div>
-<div class="how-step"><div class="step-num">5</div><div class="step-body"><h3>Reports</h3><p>A Check Run with coverage metrics</p></div></div>
+<!-- ══ HEADER ══ -->
+<div class="header">
+<div class="header-top">
+<div class="header-brand">
+<img src="https://hmoses.github.io/poly-glot-markdown/parrot-logo.png" alt="Poly-Glot" class="header-parrot">
+<h1>Poly-Glot AI GitHub App</h1>
+</div>
+<div class="header-badges">
+<a href="https://github.com/marketplace/poly-glot-ai" class="badge badge-green">GitHub Marketplace</a>
+<a href="https://poly-glot.ai" class="badge badge-link">🦜 poly-glot.ai</a>
+</div>
 </div>
 
-<!-- SUPPORTED LANGUAGES -->
+<div class="header-features">
+<span class="feature-badge">🤖 AI-Powered</span>
+<span class="feature-badge">📝 12 Languages</span>
+<span class="feature-badge">💬 3 Comment Modes</span>
+<span class="feature-badge">⚡ Auto PR Review</span>
+<span class="feature-badge">✅ Coverage Metrics</span>
+<span class="feature-badge">🔧 Self-Hostable</span>
+</div>
+
+<div class="overview-text">Automatically reviews pull requests and generates professional documentation comments across 12+ programming languages.</div>
+<ul class="overview-list">
+<li>🔍 <strong>Scans</strong> — changed files for missing documentation</li>
+<li>📊 <strong>Analyzes</strong> — documentation coverage per file</li>
+<li>🤖 <strong>Generates</strong> — doc comments using OpenAI or Anthropic</li>
+<li>💬 <strong>Posts</strong> — inline review suggestions directly on your PR</li>
+<li>✅ <strong>Reports</strong> — a Check Run with coverage metrics</li>
+</ul>
+</div>
+
+<!-- ══ HOW IT WORKS ══ -->
+<div class="how-section">
+<div class="how-title">HOW IT WORKS</div>
+<div class="how-steps">
+<div class="how-step"><div class="num">1</div><div class="label">Open PR</div></div>
+<div class="how-arrow">→</div>
+<div class="how-step"><div class="num">2</div><div class="label">Scan Files</div></div>
+<div class="how-arrow">→</div>
+<div class="how-step"><div class="num">3</div><div class="label">AI Generates Docs</div></div>
+<div class="how-arrow">→</div>
+<div class="how-step"><div class="num">4</div><div class="label">Post Suggestions</div></div>
+<div class="how-arrow">→</div>
+<div class="how-step"><div class="num">5</div><div class="label">Coverage Report</div></div>
+</div>
+</div>
+
+<!-- ══ WHAT GETS DOCUMENTED ══ -->
+<div class="card-grid">
+<div class="card"><div class="card-icon">📋</div><h3>Doc Comments</h3><p>JSDoc, PyDoc, Javadoc, Doxygen, KDoc, GoDoc, Rustdoc, Swift Markup, PHPDoc, YARD — native format per language</p></div>
+<div class="card"><div class="card-icon">🧠</div><h3>Why Comments</h3><p>Explains reasoning, trade-offs, edge cases, and design decisions behind the code</p></div>
+<div class="card"><div class="card-icon">📊</div><h3>Coverage Metrics</h3><p>Check Run reports documentation coverage percentage per file and overall PR score</p></div>
+<div class="card"><div class="card-icon">⚡</div><h3>Inline Suggestions</h3><p>Posts directly as GitHub review suggestions — one-click accept to merge docs into your code</p></div>
+<div class="card"><div class="card-icon">🔒</div><h3>Privacy First</h3><p>Code sent only to your chosen AI provider. No storage, no training, no third-party access</p></div>
+<div class="card"><div class="card-icon">🔧</div><h3>Self-Hostable</h3><p>Run on your own infrastructure with Docker or Node.js. Full control over your data</p></div>
+</div>
+
+<!-- ══ INTERACTIVE DEMO ══ -->
+<div class="demo-container">
+<div class="how-title">LIVE DEMO — COMMENT MODES</div>
+
+<div class="mode-selector">
+<button class="mode-btn active" onclick="showMode('doc')">📝 Doc Mode</button>
+<button class="mode-btn" onclick="showMode('why')">🧠 Why Mode</button>
+<button class="mode-btn" onclick="showMode('both')">📝🧠 Both Mode</button>
+</div>
+
+<div id="mode-doc" class="demo-panel active">
+<div class="demo-diff">
+<div class="demo-diff-pane">
+<span class="label label-before">❌ Before — No Documentation</span>
+<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
+  <span class="line-ctx">const key = `rl:${ip}`;</span>
+  <span class="line-ctx">const count = cache.incr(key);</span>
+  <span class="line-ctx">if (count === 1) cache.expire(key, window);</span>
+  <span class="line-ctx">return count <= max;</span>
+}
+</div>
+<div class="demo-diff-pane">
+<span class="label label-after">✅ After — Poly-Glot AI</span>
+<span class="line-add">/**</span>
+<span class="line-add"> * Enforces per-IP rate limiting using a sliding window.</span>
+<span class="line-add"> * @param {string} ip - Client IP address</span>
+<span class="line-add"> * @param {number} max - Maximum requests allowed</span>
+<span class="line-add"> * @param {number} window - Window duration in seconds</span>
+<span class="line-add"> * @returns {boolean} true if request is within limit</span>
+<span class="line-add"> */</span>
+<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
+</div>
+</div>
+</div>
+
+<div id="mode-why" class="demo-panel">
+<div class="demo-diff">
+<div class="demo-diff-pane">
+<span class="label label-before">❌ Before — No Context</span>
+<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
+  <span class="line-ctx">const key = `rl:${ip}`;</span>
+  <span class="line-ctx">const count = cache.incr(key);</span>
+  <span class="line-ctx">if (count === 1) cache.expire(key, window);</span>
+  <span class="line-ctx">return count <= max;</span>
+}
+</div>
+<div class="demo-diff-pane">
+<span class="label label-after">✅ After — Poly-Glot AI</span>
+<span class="line-add">// Why: Rate-limit auth attempts per IP to prevent</span>
+<span class="line-add">// credential stuffing. The sliding window (incr + expire)</span>
+<span class="line-add">// resets automatically, avoiding stale state. Atomic</span>
+<span class="line-add">// incr avoids race conditions under concurrent requests.</span>
+<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
+</div>
+</div>
+</div>
+
+<div id="mode-both" class="demo-panel">
+<div class="demo-diff">
+<div class="demo-diff-pane">
+<span class="label label-before">❌ Before — Nothing</span>
+<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
+  <span class="line-ctx">const key = `rl:${ip}`;</span>
+  <span class="line-ctx">const count = cache.incr(key);</span>
+  <span class="line-ctx">if (count === 1) cache.expire(key, window);</span>
+  <span class="line-ctx">return count <= max;</span>
+}
+</div>
+<div class="demo-diff-pane">
+<span class="label label-after">✅ After — Poly-Glot AI (Both)</span>
+<span class="line-add">// Why: Rate-limit auth attempts per IP to prevent</span>
+<span class="line-add">// credential stuffing. Atomic incr avoids race conditions.</span>
+<span class="line-add">/**</span>
+<span class="line-add"> * Enforces per-IP rate limiting using a sliding window.</span>
+<span class="line-add"> * @param {string} ip - Client IP address</span>
+<span class="line-add"> * @param {number} max - Maximum requests allowed</span>
+<span class="line-add"> * @param {number} window - Window duration in seconds</span>
+<span class="line-add"> * @returns {boolean} true if within limit</span>
+<span class="line-add"> */</span>
+<span class="line-ctx">function</span> <span style="color:#7dd3fc">rateLimit</span>(<span style="color:#fbbf24">ip</span>, <span style="color:#fbbf24">max</span>, <span style="color:#fbbf24">window</span>) {
+</div>
+</div>
+</div>
+</div>
+
+<!-- ══ LANGUAGES ══ -->
 <div class="section">
-<h2>🌐 Supported Languages (12)</h2>
+<div class="section-title">SUPPORTED LANGUAGES (12)</div>
 <table>
 <tr><th>Language</th><th>Doc Format</th><th>Extensions</th></tr>
-<tr><td>JavaScript</td><td>JSDoc</td><td><code class="inline-code">.js</code> <code class="inline-code">.jsx</code> <code class="inline-code">.mjs</code> <code class="inline-code">.cjs</code></td></tr>
-<tr><td>TypeScript</td><td>TSDoc</td><td><code class="inline-code">.ts</code> <code class="inline-code">.tsx</code></td></tr>
-<tr><td>Python</td><td>PyDoc</td><td><code class="inline-code">.py</code> <code class="inline-code">.pyi</code></td></tr>
-<tr><td>Java</td><td>Javadoc</td><td><code class="inline-code">.java</code></td></tr>
-<tr><td>Kotlin</td><td>KDoc</td><td><code class="inline-code">.kt</code> <code class="inline-code">.kts</code></td></tr>
-<tr><td>C</td><td>Doxygen</td><td><code class="inline-code">.c</code> <code class="inline-code">.h</code></td></tr>
-<tr><td>C++</td><td>Doxygen</td><td><code class="inline-code">.cpp</code> <code class="inline-code">.hpp</code> <code class="inline-code">.cc</code></td></tr>
-<tr><td>C#</td><td>XML Doc</td><td><code class="inline-code">.cs</code></td></tr>
-<tr><td>Go</td><td>GoDoc</td><td><code class="inline-code">.go</code></td></tr>
-<tr><td>Rust</td><td>Rustdoc</td><td><code class="inline-code">.rs</code></td></tr>
-<tr><td>Swift</td><td>Swift Markup</td><td><code class="inline-code">.swift</code></td></tr>
-<tr><td>PHP</td><td>PHPDoc</td><td><code class="inline-code">.php</code></td></tr>
-<tr><td>Ruby</td><td>YARD</td><td><code class="inline-code">.rb</code> <code class="inline-code">.rake</code></td></tr>
+<tr><td>JavaScript</td><td>JSDoc</td><td><code>.js</code> <code>.jsx</code> <code>.mjs</code></td></tr>
+<tr><td>TypeScript</td><td>TSDoc</td><td><code>.ts</code> <code>.tsx</code></td></tr>
+<tr><td>Python</td><td>PyDoc</td><td><code>.py</code> <code>.pyi</code></td></tr>
+<tr><td>Java</td><td>Javadoc</td><td><code>.java</code></td></tr>
+<tr><td>Kotlin</td><td>KDoc</td><td><code>.kt</code> <code>.kts</code></td></tr>
+<tr><td>C</td><td>Doxygen</td><td><code>.c</code> <code>.h</code></td></tr>
+<tr><td>C++</td><td>Doxygen</td><td><code>.cpp</code> <code>.hpp</code> <code>.cc</code></td></tr>
+<tr><td>C#</td><td>XML Doc</td><td><code>.cs</code></td></tr>
+<tr><td>Go</td><td>GoDoc</td><td><code>.go</code></td></tr>
+<tr><td>Rust</td><td>Rustdoc</td><td><code>.rs</code></td></tr>
+<tr><td>Swift</td><td>Swift Markup</td><td><code>.swift</code></td></tr>
+<tr><td>PHP / Ruby</td><td>PHPDoc / YARD</td><td><code>.php</code> <code>.rb</code></td></tr>
 </table>
 </div>
 
-<!-- COMMENT MODES -->
+<!-- ══ INTERACTIVE CONFIG ══ -->
 <div class="section">
-<h2>💬 Comment Modes</h2>
-<div class="grid-3">
-<div class="card mode-card">
-<div class="mode-icon">📖</div>
-<h3>Doc Mode</h3>
-<p>Standard documentation comments — parameters, return types, exceptions</p>
+<div class="section-title">⚙️ CONFIGURATION</div>
+<p style="margin-bottom:12px">Add <code>.polyglot.yml</code> to your repository root:</p>
+<div class="config-editor">
+<div class="config-line"><span class="config-comment"># AI provider</span></div>
+<div class="config-line"><span class="config-key">provider:</span> <span class="config-editable" onclick="toggleVal(this,['openai','anthropic'])" title="Click to toggle">openai</span></div>
+<div class="config-line">&nbsp;</div>
+<div class="config-line"><span class="config-comment"># Comment mode</span></div>
+<div class="config-line"><span class="config-key">mode:</span> <span class="config-editable" onclick="toggleVal(this,['both','doc','why'])" title="Click to toggle">both</span></div>
+<div class="config-line">&nbsp;</div>
+<div class="config-line"><span class="config-comment"># Coverage threshold (0.0–1.0)</span></div>
+<div class="config-line"><span class="config-key">coverage_threshold:</span> <span class="config-editable" onclick="toggleVal(this,['0.5','0.3','0.7','0.9'])" title="Click to toggle">0.5</span></div>
+<div class="config-line">&nbsp;</div>
+<div class="config-line"><span class="config-comment"># Max files per PR</span></div>
+<div class="config-line"><span class="config-key">max_files:</span> <span class="config-editable" onclick="toggleVal(this,['15','10','25','50'])" title="Click to toggle">15</span></div>
+<div class="config-line">&nbsp;</div>
+<div class="config-line"><span class="config-comment"># Review style</span></div>
+<div class="config-line"><span class="config-key">review_style:</span> <span class="config-editable" onclick="toggleVal(this,['inline','summary'])" title="Click to toggle">inline</span></div>
 </div>
-<div class="card mode-card">
-<div class="mode-icon">🧠</div>
-<h3>Why Mode</h3>
-<p>Explains the <em>reasoning</em> behind code decisions, trade-offs, and edge cases</p>
-</div>
-<div class="card mode-card">
-<div class="mode-icon">📖🧠</div>
-<h3>Both Mode</h3>
-<p>Combines doc comments AND why-comments for maximum context</p>
-</div>
-</div>
-
-<h3>Doc Mode Example</h3>
-<pre><code>/**
- * Authenticate a user with email and password.
- * @param {string} email - The user's email address
- * @param {string} password - The user's password (plaintext, hashed internally)
- * @returns {Promise&lt;AuthResult&gt;} Authentication result with token and user profile
- * @throws {AuthenticationError} If credentials are invalid
- */
-async function authenticateUser(email, password) { ... }</code></pre>
-
-<h3>Why Mode Example</h3>
-<pre><code>// Why: Rate-limit auth attempts per IP to prevent credential stuffing.
-// 5 attempts/min was chosen based on OWASP guidelines.
-// Uses sliding window instead of fixed to prevent burst attacks at window edges.
-if (await isRateLimited(ip, 5, 60)) { ... }</code></pre>
+<p style="margin-top:8px;font-size:11px;color:var(--text-muted)">💡 Click values to cycle through options</p>
 </div>
 
-<!-- QUICK START -->
+<!-- ══ SELF-HOSTING ══ -->
 <div class="section">
-<h2>⚡ Quick Start</h2>
+<div class="section-title">🏗️ SELF-HOSTING</div>
 
-<div class="how-step"><div class="step-num">1</div><div class="step-body"><h3>Install from GitHub Marketplace</h3><p>👉 <a href="https://github.com/marketplace/poly-glot-ai">Install Poly-Glot AI</a> on your repositories.</p></div></div>
-
-<div class="how-step"><div class="step-num">2</div><div class="step-body"><h3>Configure (Optional)</h3><p>Add a <code class="inline-code">.polyglot.yml</code> to your repository root:</p></div></div>
-
-<pre><code># AI provider: 'openai' or 'anthropic'
-provider: openai
-
-# Comment mode: 'doc', 'why', or 'both'
-mode: both
-
-# Only suggest docs for files below this coverage threshold (0.0–1.0)
-coverage_threshold: 0.5
-
-# Maximum files to process per PR
-max_files: 15
-
-# Review style: 'inline' (per-file suggestions) or 'summary' (single comment)
-review_style: inline
-
-# Include/exclude file patterns
-exclude:
-  - "**/*.test.*"
-  - "**/*.spec.*"
-  - "**/vendor/**"
-
-# Create a GitHub Check Run with coverage analysis
-check_run: true</code></pre>
-
-<div class="how-step"><div class="step-num">3</div><div class="step-body"><h3>Open a Pull Request</h3><p>That's it! Poly-Glot AI will automatically analyze your PR and post documentation suggestions.</p></div></div>
+<div class="demo-tabs">
+<button class="demo-tab active" onclick="showHost('docker')">🐳 Docker</button>
+<button class="demo-tab" onclick="showHost('node')">📦 Node.js</button>
 </div>
 
-<!-- SELF-HOSTING -->
-<div class="section">
-<h2>🏗️ Self-Hosting</h2>
-
-<div class="grid-2">
-<div class="card">
-<h3>Using Docker</h3>
-<pre><code>git clone https://github.com/hmoses/poly-glot-github-app.git
+<div id="host-docker" class="demo-panel active">
+<pre>git clone https://github.com/hmoses/poly-glot-github-app.git
 cd poly-glot-github-app
-cp .env.example .env
-# Edit .env with your credentials
-docker-compose up -d</code></pre>
+cp .env.example .env   # add your keys
+docker-compose up -d</pre>
 </div>
-<div class="card">
-<h3>Using Node.js</h3>
-<pre><code>git clone https://github.com/hmoses/poly-glot-github-app.git
+
+<div id="host-node" class="demo-panel">
+<pre>git clone https://github.com/hmoses/poly-glot-github-app.git
 cd poly-glot-github-app
 npm install
-cp .env.example .env
-# Edit .env with your credentials
-npm start</code></pre>
-</div>
+cp .env.example .env   # add your keys
+npm start</pre>
 </div>
 
 <h3>Environment Variables</h3>
 <table>
 <tr><th>Variable</th><th>Required</th><th>Description</th></tr>
-<tr><td><code class="inline-code">GITHUB_APP_ID</code></td><td>✅</td><td>Your GitHub App ID</td></tr>
-<tr><td><code class="inline-code">GITHUB_PRIVATE_KEY</code></td><td>✅</td><td>Your GitHub App private key (PEM)</td></tr>
-<tr><td><code class="inline-code">GITHUB_WEBHOOK_SECRET</code></td><td>✅</td><td>Webhook secret for signature verification</td></tr>
-<tr><td><code class="inline-code">OPENAI_API_KEY</code></td><td>⚡</td><td>OpenAI API key (at least one AI key required)</td></tr>
-<tr><td><code class="inline-code">ANTHROPIC_API_KEY</code></td><td>⚡</td><td>Anthropic API key (at least one AI key required)</td></tr>
-<tr><td><code class="inline-code">PORT</code></td><td>❌</td><td>Server port (default: 3000)</td></tr>
+<tr><td><code>GITHUB_APP_ID</code></td><td>✅</td><td>Your GitHub App ID</td></tr>
+<tr><td><code>GITHUB_PRIVATE_KEY</code></td><td>✅</td><td>GitHub App private key (PEM)</td></tr>
+<tr><td><code>GITHUB_WEBHOOK_SECRET</code></td><td>✅</td><td>Webhook secret for signature verification</td></tr>
+<tr><td><code>OPENAI_API_KEY</code></td><td>⚡</td><td>OpenAI API key (at least one AI key required)</td></tr>
+<tr><td><code>ANTHROPIC_API_KEY</code></td><td>⚡</td><td>Anthropic API key (at least one AI key required)</td></tr>
+<tr><td><code>PORT</code></td><td>❌</td><td>Server port (default: 3000)</td></tr>
 </table>
 </div>
 
-<!-- PRIVACY -->
-<div class="section">
-<h2>🔒 Privacy &amp; Security</h2>
-<ul>
-<li><strong>Your code stays private</strong> — the app reads PR diffs only for analysis</li>
-<li><strong>Your API key</strong> — uses your own OpenAI or Anthropic key</li>
-<li><strong>No data retention</strong> — code is processed in memory, never stored</li>
-<li><strong>Open source</strong> — audit every line of this app</li>
-</ul>
-<p>See <a href="https://github.com/hmoses/poly-glot-github-app/blob/main/PRIVACY.md">PRIVACY.md</a> for the full privacy policy.</p>
-</div>
-
-<!-- ECOSYSTEM -->
-<div class="section">
-<h2>🧩 Ecosystem</h2>
-<table>
-<tr><th>Platform</th><th>Link</th></tr>
-<tr><td>🌐 Web App</td><td><a href="https://poly-glot.ai">poly-glot.ai</a></td></tr>
-<tr><td>🤖 GitHub App</td><td><a href="https://github.com/marketplace/poly-glot-ai">GitHub Marketplace</a></td></tr>
-<tr><td>📐 Markdown Optimizer</td><td><a href="https://hmoses.github.io/poly-glot-markdown/">poly-glot-markdown</a></td></tr>
-<tr><td>🔌 MCP Server</td><td><a href="https://github.com/hmoses/poly-glot-ai-workspace">poly-glot-ai-workspace</a></td></tr>
-</table>
-</div>
-
-</div>
-
+<!-- ══ ECOSYSTEM ══ -->
 <div class="footer">
-<p><strong>Harold Moses II</strong> · <a href="mailto:hwmoses2@icloud.com">hwmoses2@icloud.com</a></p>
-<p style="margin-top:6px"><a href="https://hmoses.github.io/portfolio.html">Portfolio</a> · <a href="https://github.com/hmoses">GitHub</a> · <a href="https://linkedin.com/in/harold-moses-ii-78aa3a3b">LinkedIn</a></p>
-<p style="margin-top:8px;font-size:12px;color:#999">MIT License · Built by Harold Moses</p>
+<div class="how-title" style="margin-bottom:14px">POLY-GLOT ECOSYSTEM</div>
+<div class="ecosystem">
+<a href="https://poly-glot.ai" class="eco-link">🦜 Poly-Glot AI</a>
+<a href="https://hmoses.github.io/poly-glot-markdown/" class="eco-link">📝 Markdown Optimizer</a>
+<a href="https://github.com/marketplace/poly-glot-ai" class="eco-link">🏪 GitHub Marketplace</a>
+<a href="https://github.com/hmoses/poly-glot-github-app" class="eco-link">💻 Source Code</a>
+<a href="https://hmoses.github.io/portfolio.html" class="eco-link">📊 Portfolio</a>
+</div>
+<p>Built by Harold Moses II · <a href="https://github.com/hmoses">github.com/hmoses</a></p>
 </div>
 
+</div><!-- /container -->
+
+<script>
+function showMode(mode) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.demo-panel').forEach(p => { if(p.id && p.id.startsWith('mode-')) p.classList.remove('active'); });
+  document.getElementById('mode-' + mode).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showHost(type) {
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.demo-panel').forEach(p => { if(p.id && p.id.startsWith('host-')) p.classList.remove('active'); });
+  document.getElementById('host-' + type).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleVal(el, vals) {
+  const idx = vals.indexOf(el.textContent);
+  el.textContent = vals[(idx + 1) % vals.length];
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+</script>
 </body>
 </html>
